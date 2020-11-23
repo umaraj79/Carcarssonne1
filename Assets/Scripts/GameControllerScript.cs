@@ -7,21 +7,21 @@ using UnityEngine.UI;
 public class GameControllerScript : MonoBehaviour
 {
     //Number of players
-    public int players;
+    private int players;
     //The points of each player where each index represents a player (index+1).
     // public int[] points;
     //The matrix of tiles (separated by 2.0f in all 2D directions)
-    public GameObject[,] placedTiles;
+    private GameObject[,] placedTiles;
     //Current tile held in hand
-    public GameObject currentTile;
+    private GameObject currentTile;
 
-    public PlayerScript playerScript;
+    private PlayerScript playerScript;
 
-    public int currentPlayer;
+    private int currentPlayer;
 
-    public int lastPlayer = 0;
+    private int lastPlayer = 0;
 
-    public StackScript stackScript;
+    private StackScript stackScript;
 
     public Image invalidTile;
 
@@ -35,19 +35,17 @@ public class GameControllerScript : MonoBehaviour
 
     public GameObject MeeplePrefab;
 
-    // public GameObject[][] meeples;
+    //private int xs, zs;
 
-    public int xs, zs;
-
-    public float aimX, aimZ;
+    private float aimX, aimZ;
 
     private PointScript.Direction direction;
 
     private TileScript.geography meepleGeography;
 
-    public TurnScript turnScript;
+    private TurnScript turnScript;
 
-    public Borderscript borderscript;
+    private Borderscript borderscript;
 
     public RectTransform mPanelGameOver;
 
@@ -61,8 +59,16 @@ public class GameControllerScript : MonoBehaviour
 
     bool renderCurrentTile = false;
 
-    float AimX;
-    float AimZ;
+    string errorOutput = "";
+
+    public GameObject debugCluster;
+
+    float fTileAimX;
+    float fTileAimZ;
+
+    int iTileAimX, iTileAimZ;
+
+
     int tempX;
     int tempY;
     Color32 playerColor;
@@ -84,9 +90,9 @@ public class GameControllerScript : MonoBehaviour
         Outside
     }
 
-    public CursorStates CursorState;
+    private CursorStates CursorState;
 
-    public GameStates state;
+    private GameStates state;
 
     //Startar nytt spel
     public void NewGame(int players)
@@ -94,8 +100,9 @@ public class GameControllerScript : MonoBehaviour
         placedTiles = new GameObject[170, 170];
         NewTileRotation = 0;
         stackScript = GetComponent<StackScript>().createStackScript();
-        currentTile = stackScript.InstatiateTiles(7, 0, 0, 0);
+        currentTile = stackScript.Pop();
         currentTile.name = "BaseTile";
+
 
         VertexItterator = 1;
 
@@ -106,8 +113,7 @@ public class GameControllerScript : MonoBehaviour
         playerScript.CreatePlayer(0, "Adam", new Color32(0, 255, 0, 255));
         playerScript.CreatePlayer(1, "Markus", new Color32(255, 0, 0, 255));
         playerScript.CreatePlayer(2, "Henrik", new Color32(255, 255, 0, 255));
-        Debug.Log("Kommer hit");
-
+        //Debug.Log("Kommer hit");
         /*
                 this.players = players;
                 points = new int[players];
@@ -143,21 +149,6 @@ public class GameControllerScript : MonoBehaviour
         {
             invalideMeeple = image.GetComponent<Image>();
         }
-    }
-
-
-
-
-    public GameObject[] generateMeeples(int player)
-    {
-        GameObject[] res = new GameObject[8];
-        for (int i = 0; i < 8; i++)
-        {
-            GameObject meeple = GameObject.Instantiate(MeeplePrefab, new Vector3(20.0f, 20.0f, 20.0f), Quaternion.identity);
-            meeple.GetComponent<MeepleScript>().create(player);
-            res[i] = meeple;
-        }
-        return res;
     }
 
     //Kontrollerar att tilen får placeras på angivna koordinater 
@@ -219,6 +210,131 @@ public class GameControllerScript : MonoBehaviour
         }
 
         return isNotAlone2;
+    }
+
+    public int CheckSurroundedCloister(int x, int z, bool endTurn)
+    {
+        int pts = 1;
+        if (placedTiles[x - 1, z - 1] != null) pts++;
+        if (placedTiles[x - 1, z] != null) pts++;
+        if (placedTiles[x - 1, z + 1] != null) pts++;
+        if (placedTiles[x, z - 1] != null) pts++;
+        if (placedTiles[x, z + 1] != null) pts++;
+        if (placedTiles[x + 1, z - 1] != null) pts++;
+        if (placedTiles[x + 1, z] != null) pts++;
+        if (placedTiles[x + 1, z + 1] != null) pts++;
+        if (pts == 9 || endTurn)
+        {
+            return pts;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public PointScript.Direction[] getDirections(int x, int y)
+    {
+        PointScript.Direction[] directions = new PointScript.Direction[4];
+        int itt = 0;
+        if (placedTiles[x + 1, y] != null)
+        {
+            directions[itt] = PointScript.Direction.EAST;
+            itt++;
+        }
+        if (placedTiles[x - 1, y] != null)
+        {
+            directions[itt] = PointScript.Direction.WEST;
+            itt++;
+        }
+        if (placedTiles[x, y + 1] != null)
+        {
+            directions[itt] = PointScript.Direction.NORTH;
+            itt++;
+        }
+        if (placedTiles[x, y - 1] != null)
+        {
+            directions[itt] = PointScript.Direction.SOUTH;
+        }
+        return directions;
+    }
+
+    public TileScript.geography[] getCenters(int x, int y)
+    {
+        TileScript.geography[] centers = new TileScript.geography[4];
+        int itt = 0;
+        if (placedTiles[x + 1, y] != null)
+        {
+            centers[itt] = placedTiles[x + 1, y].GetComponent<TileScript>().getCenter();
+            itt++;
+        }
+        if (placedTiles[x - 1, y] != null)
+        {
+            centers[itt] = placedTiles[x - 1, y].GetComponent<TileScript>().getCenter();
+            itt++;
+        }
+        if (placedTiles[x, y + 1] != null)
+        {
+            centers[itt] = placedTiles[x, y + 1].GetComponent<TileScript>().getCenter();
+            itt++;
+        }
+        if (placedTiles[x, y - 1] != null)
+        {
+            centers[itt] = placedTiles[x, y - 1].GetComponent<TileScript>().getCenter();
+        }
+        return centers;
+    }
+
+    public TileScript.geography[] getWeights(int x, int y)
+    {
+        TileScript.geography[] weights = new TileScript.geography[4];
+        int itt = 0;
+        if (placedTiles[x + 1, y] != null)
+        {
+            weights[itt] = placedTiles[x + 1, y].GetComponent<TileScript>().West;
+            itt++;
+        }
+        if (placedTiles[x - 1, y] != null)
+        {
+            weights[itt] = placedTiles[x - 1, y].GetComponent<TileScript>().East;
+            itt++;
+        }
+        if (placedTiles[x, y + 1] != null)
+        {
+            weights[itt] = placedTiles[x, y + 1].GetComponent<TileScript>().South;
+            itt++;
+        }
+        if (placedTiles[x, y - 1] != null)
+        {
+            weights[itt] = placedTiles[x, y - 1].GetComponent<TileScript>().North;
+        }
+        return weights;
+    }
+    //Hämtar grannarna till en specifik tile
+    public int[] GetNeighbors(int x, int y)
+    {
+        int[] Neighbors = new int[4];
+        int itt = 0;
+        if (placedTiles[x + 1, y] != null)
+        {
+            Neighbors[itt] = placedTiles[x + 1, y].GetComponent<TileScript>().vIndex;
+            itt++;
+        }
+        if (placedTiles[x - 1, y] != null)
+        {
+            Neighbors[itt] = placedTiles[x - 1, y].GetComponent<TileScript>().vIndex;
+            itt++;
+        }
+        if (placedTiles[x, y + 1] != null)
+        {
+            Neighbors[itt] = placedTiles[x, y + 1].GetComponent<TileScript>().vIndex;
+            itt++;
+        }
+        if (placedTiles[x, y - 1] != null)
+        {
+            Neighbors[itt] = placedTiles[x, y - 1].GetComponent<TileScript>().vIndex;
+        }
+        return Neighbors;
     }
 
     //Test City checker
@@ -365,93 +481,84 @@ public class GameControllerScript : MonoBehaviour
     /// <summary>
     /// AimTile doesn't do anything but visualize where in the tile grid the player is pointing.
     /// </summary>
-    void AimTile()
+    void RenderTempTile()
     {
-        if (state == GameStates.TileHeld && CursorState == CursorStates.Inside)
+        bool showMesh = true;
+        if (state == GameStates.TileHeld)
         {
-            float planeY = 0;
-            Plane plane = new Plane(Vector3.up, Vector3.up * planeY);
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (plane.Raycast(ray, out float distance))
-            {
-                AimX = ray.GetPoint(distance).x;
-                AimZ = ray.GetPoint(distance).z;
-            }
-            int xs;
-            int zs;
-            if (AimX > 0)
-            {
-                xs = (int)(AimX + 1f) / 2;
-
-            }
-            else
-            {
-                xs = (int)(AimX - 1f) / 2;
-            }
-            if (AimZ > 0)
-            {
-                zs = (int)(AimZ + 1f) / 2;
-            }
-            else
-            {
-                zs = (int)(AimZ - 1f) / 2;
-            }
-            AimX = xs + 85;
-            AimZ = zs + 85;
             try
             {
                 //If the player points their brick within the grid, the held brick is displayed at the grid point where the players cursor is pointing
-                if (placedTiles[xs + 85, zs + 85] == null)
+                if (placedTiles[(int)fTileAimX, (int)fTileAimZ] == null)
                 {
-                    Mesh mesh = tileMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
-                    Graphics.DrawMesh(mesh, new Vector3(xs * 2, 0.0f, zs * 2), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
+                    showMesh = true;
+                }
+                else
+                {
+                    showMesh = false;
                 }
             }
             catch (IndexOutOfRangeException e)
             {
                 Debug.Log(e);
+                errorOutput = e.ToString();
+            }
+            if (showMesh)
+            {
+                Mesh mesh = tileMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
+                Graphics.DrawMesh(mesh, new Vector3((iTileAimX-85)*2, 0.0f, (iTileAimZ-85)*2), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
             }
         }
     }
 
-    public void AimMeeple()
+    private void MouseAim()
     {
-
-        aimX = 0;
-        aimZ = 0;
         float planeY = 0;
         Plane plane = new Plane(Vector3.up, Vector3.up * planeY);
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (plane.Raycast(ray, out float distance))
         {
-            aimX = ray.GetPoint(distance).x;
-            aimZ = ray.GetPoint(distance).z;
+            fTileAimX = ray.GetPoint(distance).x;
+            fTileAimZ = ray.GetPoint(distance).z;
         }
-        if (aimX > 0)
+
+        if (fTileAimX > 0)
         {
-            xs = (int)(aimX + 1f) / 2;
+            iTileAimX = ((int)(fTileAimX + 1f) / 2) + 85;
+
         }
         else
         {
-            xs = (int)(aimX - 1f) / 2;
+            iTileAimX = ((int)(fTileAimX - 1f) / 2) +85;
         }
-        if (aimZ > 0)
+        if (fTileAimZ > 0)
         {
-            zs = (int)(aimZ + 1f) / 2;
+            iTileAimZ = ((int)(fTileAimZ + 1f) / 2) +85;
         }
         else
         {
-            zs = (int)(aimZ - 1f) / 2;
+            iTileAimZ = ((int)(fTileAimZ - 1f) / 2) +85;
         }
+        //TileAimX = xs + 85;
+        //TileAimZ = zs + 85;
+    }
+
+    public void AimMeeple(bool TouchEnded)
+    {
+
+        aimX = 0;
+        aimZ = 0;
         try
         {
-            if (placedTiles[xs + 85, zs + 85] != null && placedTiles[xs + 85, zs + 85] == currentTile)
+            if (placedTiles[iTileAimX, iTileAimZ] == currentTile)
             {
-                GameObject tile = placedTiles[xs + 85, zs + 85];
+                GameObject tile = placedTiles[iTileAimX, iTileAimZ];
                 TileScript tileScript = tile.GetComponent<TileScript>();
 
-                aimX -= xs * 2;
-                aimZ -= zs * 2;
+                //aimX = TileAimX - (xs * 2);
+                //aimZ = TileAimZ - (zs * 2);
+                aimX = (fTileAimX - ((iTileAimX - 85) * 2));
+                aimZ = (fTileAimZ - ((iTileAimZ - 85) * 2));
 
                 //Debug.Log("x: " + aimX + " z: " + aimZ);
                 int id = tile.GetComponent<TileScript>().id;
@@ -489,13 +596,32 @@ public class GameControllerScript : MonoBehaviour
                 {
                     if (state == GameStates.MeepleHeld)
                     {
-                        float tmpX = xs * 2 + aimX;
-                        float tmpZ = zs * 2 + aimZ;
+                        //float tmpX = xs * 2 + aimX;
+                        //float tmpZ = zs * 2 + aimZ;
                         //Debug.Log("X: " + (tmpX) + " z: " + (tmpZ));
+                        //Material mat = meeples[0][0].GetComponent<MeepleScript>().materials[currentPlayer];
+
+
+
                         Mesh mesh = meepleMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
-                        // Material mat = meeples[0][0].GetComponent<MeepleScript>().materials[currentPlayer];
                         Material mat = playerScript.GetPlayer(currentPlayer).meeples[0].GetComponent<MeepleScript>().material;
-                        Graphics.DrawMesh(mesh, new Vector3(tmpX, 0.175f, tmpZ), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), mat, 0);
+                        Graphics.DrawMesh(mesh, new Vector3(fTileAimX, 0.175f, fTileAimZ), Quaternion.Euler(0.0f, 180.0f + 0.0f, 0.0f), mat, 0);
+
+                        if (TouchEnded && CursorState == CursorStates.Inside)
+                        {
+                            GameObject newMeeple = null;
+                            foreach(GameObject meeple in playerScript.GetPlayer(currentPlayer).meeples)
+                            {
+                                if (meeple.GetComponent<MeepleScript>().free)
+                                {
+                                    newMeeple = meeple;
+                                    break;
+                                }
+                            }
+                            if(newMeeple != null) { 
+                                PlaceMeeple(newMeeple, iTileAimX-85, iTileAimZ-85, direction, meepleGeography);
+                            }
+                        }
                     }
                 }
             }
@@ -503,25 +629,36 @@ public class GameControllerScript : MonoBehaviour
         catch (IndexOutOfRangeException e)
         {
             Debug.Log(e);
+            errorOutput = e.ToString();
         }
     }
 
 
-    public void PlaceMeeple(GameObject meeple, int xs, int zs, PointScript.Direction direction, TileScript.geography meepleGeography, float tmpX, float tmpZ)
+    public void PlaceMeeple(GameObject meeple, int xs, int zs, PointScript.Direction direction, TileScript.geography meepleGeography)
     {
         TileScript currentTileScript = placedTiles[xs + 85, zs + 85].GetComponent<TileScript>();
-        if (!currentTileScript.checkIfOcupied(direction))
+
+        bool res = false;
+        if(currentTileScript.getCenter() == TileScript.geography.Village || currentTileScript.getCenter() == TileScript.geography.Grass)
+        {
+            res = GetComponent<PointScript>().testIfMeepleCantBePlacedDirection(currentTileScript.vIndex, meepleGeography, direction);
+        }
+        else
+        {
+            res = GetComponent<PointScript>().testIfMeepleCantBePlaced(currentTileScript.vIndex, meepleGeography);
+        }
+
+        if (!currentTileScript.checkIfOcupied(direction) && res)
         {
             TileScript.geography geography = currentTileScript.getGeographyAt(direction);
             currentTileScript.occupy(direction);
             if (meepleGeography == TileScript.geography.Cityroad) meepleGeography = TileScript.geography.City;
             meeple.GetComponent<MeepleScript>().assignAttributes(xs + 85, zs + 85, direction, meepleGeography);
             meeple.GetComponentInChildren<MeshRenderer>().enabled = true;
-            meeple.transform.position = new Vector3(tmpX, 0.175f, tmpZ);
+            meeple.transform.position = new Vector3(fTileAimX, 0.175f, fTileAimZ);
             meeple.name = "MeepleDown";
             meeple.GetComponent<MeepleScript>().free = false;
             state = GameStates.MeepleDown;
-
         }
     }
 
@@ -540,14 +677,14 @@ public class GameControllerScript : MonoBehaviour
         calculatePoints(false, false);
         state = GameStates.TileDown;
     }
+
     //Metod för att plocka upp en ny tile
     public void PickupBrick()
     {
-
         currentTile = stackScript.Pop();
-        NewTileRotation = 0;
-
-        if (cantTileBePlaced(currentTile))//Ska den göras för varje rotation eller räcker detta? osäker
+        ResetTileRotation();
+        renderCurrentTile = false;
+        if (cantTileBePlaced(currentTile))
         {
             Debug.Log("Tile not possible to place: discarding and drawing a new one. " + "Tile id: " + currentTile.GetComponent<TileScript>().id);
             currentTile = null;
@@ -558,9 +695,6 @@ public class GameControllerScript : MonoBehaviour
             ResetTileRotation();
             state = GameStates.TileHeld;
         }
-
-
-
     }
 
     public void oneFingerDown()
@@ -579,12 +713,13 @@ public class GameControllerScript : MonoBehaviour
     {
         if (state == GameStates.TileHeld)
         {
-            if (TilePlacementIsValid(currentTile, (int)AimX, (int)AimZ))
+            if (TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
-                PlaceBrick(currentTile, (int)AimX, (int)AimZ);
+                PlaceBrick(currentTile, iTileAimX, iTileAimZ);
                 invalidTile.GetComponent<CardSlideScript>().InvalidTile(false);
+                renderCurrentTile = false;
             }
-            else if (!TilePlacementIsValid(currentTile, (int)AimX, (int)AimZ))
+            else if (!TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
                 invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
 
@@ -619,9 +754,6 @@ public class GameControllerScript : MonoBehaviour
 
 
             //Temp playerscript
-
-
-
             VertexItterator--;
             GetComponent<PointScript>().RemoveVertex(VertexItterator);
         }
@@ -630,10 +762,10 @@ public class GameControllerScript : MonoBehaviour
     //Avslutar nuvarande spelares runda
     public void EndTurn()
     {
-
         if (state == GameStates.TileDown || state == GameStates.MeepleDown || state == GameStates.MeepleHeld)
         {
             lastPlayer = currentPlayer;
+            NewTileRotation = 0;
             calculatePoints(true, false);
             if (stackScript.GetTileCount() == -1)
             {
@@ -734,26 +866,7 @@ public class GameControllerScript : MonoBehaviour
 
     }
 
-    public int CheckSurroundedCloister(int x, int z, bool endTurn)
-    {
-        int pts = 1;
-        if (placedTiles[x - 1, z - 1] != null) pts++;
-        if (placedTiles[x - 1, z] != null) pts++;
-        if (placedTiles[x - 1, z + 1] != null) pts++;
-        if (placedTiles[x, z - 1] != null) pts++;
-        if (placedTiles[x, z + 1] != null) pts++;
-        if (placedTiles[x + 1, z - 1] != null) pts++;
-        if (placedTiles[x + 1, z] != null) pts++;
-        if (placedTiles[x + 1, z + 1] != null) pts++;
-        if (pts == 9 || endTurn)
-        {
-            return pts;
-        }
-        else
-        {
-            return 0;
-        }
-    }
+
 
     public void PlaceMeeple()
     {
@@ -767,116 +880,10 @@ public class GameControllerScript : MonoBehaviour
         }
     }
 
-
-    public PointScript.Direction[] getDirections(int x, int y)
-    {
-        PointScript.Direction[] directions = new PointScript.Direction[4];
-        int itt = 0;
-        if (placedTiles[x + 1, y] != null)
-        {
-            directions[itt] = PointScript.Direction.EAST;
-            itt++;
-        }
-        if (placedTiles[x - 1, y] != null)
-        {
-            directions[itt] = PointScript.Direction.WEST;
-            itt++;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            directions[itt] = PointScript.Direction.NORTH;
-            itt++;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            directions[itt] = PointScript.Direction.SOUTH;
-        }
-        return directions;
-    }
-
-    public TileScript.geography[] getCenters(int x, int y)
-    {
-        TileScript.geography[] centers = new TileScript.geography[4];
-        int itt = 0;
-        if (placedTiles[x + 1, y] != null)
-        {
-            centers[itt] = placedTiles[x + 1, y].GetComponent<TileScript>().getCenter();
-            itt++;
-        }
-        if (placedTiles[x - 1, y] != null)
-        {
-            centers[itt] = placedTiles[x - 1, y].GetComponent<TileScript>().getCenter();
-            itt++;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            centers[itt] = placedTiles[x, y + 1].GetComponent<TileScript>().getCenter();
-            itt++;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            centers[itt] = placedTiles[x, y - 1].GetComponent<TileScript>().getCenter();
-        }
-        return centers;
-    }
-
-    public TileScript.geography[] getWeights(int x, int y)
-    {
-        TileScript.geography[] weights = new TileScript.geography[4];
-        int itt = 0;
-        if (placedTiles[x + 1, y] != null)
-        {
-            weights[itt] = placedTiles[x + 1, y].GetComponent<TileScript>().West;
-            itt++;
-        }
-        if (placedTiles[x - 1, y] != null)
-        {
-            weights[itt] = placedTiles[x - 1, y].GetComponent<TileScript>().East;
-            itt++;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            weights[itt] = placedTiles[x, y + 1].GetComponent<TileScript>().South;
-            itt++;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            weights[itt] = placedTiles[x, y - 1].GetComponent<TileScript>().North;
-        }
-        return weights;
-    }
-    //Hämtar grannarna till en specifik tile
-    public int[] GetNeighbors(int x, int y)
-    {
-        int[] Neighbors = new int[4];
-        int itt = 0;
-        if (placedTiles[x + 1, y] != null)
-        {
-            Neighbors[itt] = placedTiles[x + 1, y].GetComponent<TileScript>().vIndex;
-            itt++;
-        }
-        if (placedTiles[x - 1, y] != null)
-        {
-            Neighbors[itt] = placedTiles[x - 1, y].GetComponent<TileScript>().vIndex;
-            itt++;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            Neighbors[itt] = placedTiles[x, y + 1].GetComponent<TileScript>().vIndex;
-            itt++;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            Neighbors[itt] = placedTiles[x, y - 1].GetComponent<TileScript>().vIndex;
-        }
-        return Neighbors;
-    }
-
     void Start()
     {
         mainCamera = Camera.main;
         NewGame(PlayerPrefs.GetInt("PlayerCount"));
-
     }
 
     public void RotateTile()
@@ -894,8 +901,8 @@ public class GameControllerScript : MonoBehaviour
 
     public void ResetTileRotation()
     {
-        //NewTileRotation = 0;
-        //currentTile.GetComponent<TileScript>().resetRotation();
+        NewTileRotation = 0;
+        currentTile.GetComponent<TileScript>().resetRotation();
     }
 
     void GameOver()
@@ -917,27 +924,26 @@ public class GameControllerScript : MonoBehaviour
         else
         {
             CursorState = CursorStates.Inside;
+            MouseAim();
         }
-
         if (renderCurrentTile)
         {
-            AimTile();
+            RenderTempTile();
         }
-
         int touches = Input.touchCount;
-
-
-        if (touches > 0 && touches < 2)
+        Touch touch = Input.GetTouch(0);
+        if (touches > 0 && touches < 2 && CursorState == CursorStates.Inside)
         {
-            Touch touch = Input.GetTouch(0);
+            renderCurrentTile = true;
+
             if (touch.phase == TouchPhase.Moved)
             {
-                AimTile();
+                RenderTempTile();
             }
             if (touch.phase == TouchPhase.Ended)
             {
                 bool hasNoNeighbours = true;
-                int[] neighbours = GetNeighbors((int)AimX, (int)AimZ);
+                int[] neighbours = GetNeighbors(iTileAimX, iTileAimZ);
                 for (int i = 0; i < neighbours.Length; i++)
                 {
                     if (neighbours[i] != 0)
@@ -956,7 +962,6 @@ public class GameControllerScript : MonoBehaviour
                 }
             }
         }
-        Debug.Log(CursorState);
         //If the player presses the R button they rotate the temporary "display" tile AND the currently held tile.
         if (Input.GetKeyDown(KeyCode.R))
         {
@@ -964,7 +969,7 @@ public class GameControllerScript : MonoBehaviour
         }
         if (state == GameStates.MeepleHeld)
         {
-            AimMeeple();
+            AimMeeple(touch.phase == TouchPhase.Ended);
         }
         //AimMeeple();
         //För nästa runda spelares tur, kan ändras senare när vi har knapp
@@ -980,7 +985,26 @@ public class GameControllerScript : MonoBehaviour
         {
             GetComponent<PointScript>().printEverything();
         }
-
+        updateDebug();
     }
 
+    private void updateDebug()
+    {
+        TileScript currentTileScript = currentTile.GetComponent<TileScript>();
+        debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = meepleGeography.ToString();
+        debugCluster.transform.Find("DebugText2").GetComponent<Text>().text = direction.ToString();
+        debugCluster.transform.Find("DebugText3").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText4").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText5").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText6").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText7").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText8").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText9").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText10").GetComponent<Text>().text = "";
+    }
+
+    public void toggleDebug()
+    {
+        debugCluster.SetActive(!debugCluster.activeSelf);
+    }
 }

@@ -99,10 +99,11 @@ public class StackScript : MonoBehaviour{
             tileArray[j] = tmp;
         }
         tileArray[tileArray.Length-1] = InstatiateTiles(7, 0.0f, 0.0f, 0.0f);
-        for(int j = 0; j < tileArray.Length-1; j++)
+        for(int j = 0; j < tileArray.Length; j++)
         {
-            tileArray[j].transform.parent = tileArray[tileArray.Length-1].transform;
+            tileArray[j].transform.parent = tileArray[tileArray.Length - 1].transform;
         }
+
     }
 
     /// <summary>
@@ -138,17 +139,6 @@ public class StackScript : MonoBehaviour{
             tiles[i] = tiles[randomIndex];
             tiles[randomIndex] = temp;
         }
-
-        //THIS IS FOR TEST PURPOSES
-
-        /*
-        tiles[tiles.Length - 1] = 7;
-        tiles[tiles.Length-2] = 14;
-        tiles[tiles.Length - 3] = 15;
-        */
-
-
-
         return this.tiles;
     }
 

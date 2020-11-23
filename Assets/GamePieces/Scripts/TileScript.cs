@@ -308,8 +308,6 @@ public class TileScript : MonoBehaviour
         West = South;
         South = East;
         East = res;
-
-
     }
 
     /// <summary>
