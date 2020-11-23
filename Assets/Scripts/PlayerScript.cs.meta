@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 22fad239cb21b4e4fbfe9741f89290df
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - MeeplePrefab: {fileID: 2470780459563121935, guid: 5fbf783a14acac64b90b694dea663bdb,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
