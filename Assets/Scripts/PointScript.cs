@@ -104,13 +104,13 @@ public class PointScript : MonoBehaviour
                 {
                     if(tmp.ElementAt(j).endVertex == Vindex)
                     {
-                        Debug.Log("Meeple set on " + weight);
+                        //Debug.Log("Meeple set on " + weight);
                         tmp.ElementAt(j).hasMeeple = true;
                     }
                 }
                 if (!neighbours.ElementAt(i).hasMeeple)
                 {
-                    Debug.Log("Meeple set on " + weight);
+                    //Debug.Log("Meeple set on " + weight);
                     neighbours.ElementAt(i).hasMeeple = true;
                 }
                 else
