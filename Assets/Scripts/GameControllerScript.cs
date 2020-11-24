@@ -83,20 +83,32 @@ public class GameControllerScript : MonoBehaviour
         MeepleDown,
         GameOver
     };
+    public GameStates state;
 
     public enum CursorStates
     {
         Inside,
         Outside
-    }
+    };
 
     private CursorStates CursorState;
 
-    private GameStates state;
+    private enum PlatformStates
+    {
+        Computer,
+        Tablet
+    }
+
+    private PlatformStates Platform;
+
 
     //Startar nytt spel
     public void NewGame(int players)
     {
+
+        Platform = (PlatformStates)Enum.Parse(typeof(PlatformStates), PlayerPrefs.GetString("Platform"));
+
+
         placedTiles = new GameObject[170, 170];
         NewTileRotation = 0;
         stackScript = GetComponent<StackScript>().createStackScript();
@@ -506,7 +518,7 @@ public class GameControllerScript : MonoBehaviour
             if (showMesh)
             {
                 Mesh mesh = tileMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
-                Graphics.DrawMesh(mesh, new Vector3((iTileAimX-85)*2, 0.0f, (iTileAimZ-85)*2), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
+                Graphics.DrawMesh(mesh, new Vector3((iTileAimX - 85) * 2, 0.0f, (iTileAimZ - 85) * 2), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
             }
         }
     }
@@ -529,15 +541,15 @@ public class GameControllerScript : MonoBehaviour
         }
         else
         {
-            iTileAimX = ((int)(fTileAimX - 1f) / 2) +85;
+            iTileAimX = ((int)(fTileAimX - 1f) / 2) + 85;
         }
         if (fTileAimZ > 0)
         {
-            iTileAimZ = ((int)(fTileAimZ + 1f) / 2) +85;
+            iTileAimZ = ((int)(fTileAimZ + 1f) / 2) + 85;
         }
         else
         {
-            iTileAimZ = ((int)(fTileAimZ - 1f) / 2) +85;
+            iTileAimZ = ((int)(fTileAimZ - 1f) / 2) + 85;
         }
         //TileAimX = xs + 85;
         //TileAimZ = zs + 85;
@@ -610,7 +622,7 @@ public class GameControllerScript : MonoBehaviour
                         if (TouchEnded && CursorState == CursorStates.Inside)
                         {
                             GameObject newMeeple = null;
-                            foreach(GameObject meeple in playerScript.GetPlayer(currentPlayer).meeples)
+                            foreach (GameObject meeple in playerScript.GetPlayer(currentPlayer).meeples)
                             {
                                 if (meeple.GetComponent<MeepleScript>().free)
                                 {
@@ -618,8 +630,9 @@ public class GameControllerScript : MonoBehaviour
                                     break;
                                 }
                             }
-                            if(newMeeple != null) { 
-                                PlaceMeeple(newMeeple, iTileAimX-85, iTileAimZ-85, direction, meepleGeography);
+                            if (newMeeple != null)
+                            {
+                                PlaceMeeple(newMeeple, iTileAimX - 85, iTileAimZ - 85, direction, meepleGeography);
                             }
                         }
                     }
@@ -638,8 +651,8 @@ public class GameControllerScript : MonoBehaviour
     {
         TileScript currentTileScript = placedTiles[xs + 85, zs + 85].GetComponent<TileScript>();
 
-        bool res = false;
-        if(currentTileScript.getCenter() == TileScript.geography.Village || currentTileScript.getCenter() == TileScript.geography.Grass)
+        bool res;
+        if (currentTileScript.getCenter() == TileScript.geography.Village || currentTileScript.getCenter() == TileScript.geography.Grass)
         {
             res = GetComponent<PointScript>().testIfMeepleCantBePlacedDirection(currentTileScript.vIndex, meepleGeography, direction);
         }
@@ -930,47 +943,66 @@ public class GameControllerScript : MonoBehaviour
         {
             RenderTempTile();
         }
-        int touches = Input.touchCount;
-        Touch touch = Input.GetTouch(0);
-        if (touches > 0 && touches < 2 && CursorState == CursorStates.Inside)
-        {
-            renderCurrentTile = true;
 
-            if (touch.phase == TouchPhase.Moved)
+        if (Platform == PlatformStates.Tablet)
+        {
+            int touches = Input.touchCount;
+            Touch touch = Input.GetTouch(0);
+            if (touches > 0 && touches < 2 && CursorState == CursorStates.Inside)
             {
-                RenderTempTile();
-            }
-            if (touch.phase == TouchPhase.Ended)
-            {
-                bool hasNoNeighbours = true;
-                int[] neighbours = GetNeighbors(iTileAimX, iTileAimZ);
-                for (int i = 0; i < neighbours.Length; i++)
+                renderCurrentTile = true;
+
+                if (touch.phase == TouchPhase.Moved)
                 {
-                    if (neighbours[i] != 0)
+                    RenderTempTile();
+                }
+                if (touch.phase == TouchPhase.Ended)
+                {
+                    bool hasNoNeighbours = true;
+                    int[] neighbours = GetNeighbors(iTileAimX, iTileAimZ);
+                    for (int i = 0; i < neighbours.Length; i++)
                     {
-                        hasNoNeighbours = false;
+                        if (neighbours[i] != 0)
+                        {
+                            hasNoNeighbours = false;
+                        }
+                    }
+                    if (hasNoNeighbours)
+                    {
+                        invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
+                        renderCurrentTile = false;
+                    }
+                    if (!hasNoNeighbours)
+                    {
+                        renderCurrentTile = true;
                     }
                 }
-                if (hasNoNeighbours)
-                {
-                    invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
-                    renderCurrentTile = false;
-                }
-                if (!hasNoNeighbours)
-                {
-                    renderCurrentTile = true;
-                }
+            }
+            if (state == GameStates.MeepleHeld)
+            {
+                AimMeeple(touch.phase == TouchPhase.Ended);
             }
         }
+        else
+        {
+            if (state == GameStates.MeepleHeld)
+            {
+                AimMeeple(Input.GetMouseButtonDown(0));
+            }
+
+            if(CursorState == CursorStates.Inside)
+            {
+                renderCurrentTile = true;
+            }
+        }
+
+
         //If the player presses the R button they rotate the temporary "display" tile AND the currently held tile.
         if (Input.GetKeyDown(KeyCode.R))
         {
             RotateTile();
         }
-        if (state == GameStates.MeepleHeld)
-        {
-            AimMeeple(touch.phase == TouchPhase.Ended);
-        }
+
         //AimMeeple();
         //För nästa runda spelares tur, kan ändras senare när vi har knapp
         if (Input.GetKeyDown(KeyCode.M))
