@@ -140,7 +140,7 @@ public class GameControllerScript : MonoBehaviour
         */
         PlaceBrick(currentTile, 85, 85);
         getInvalidTileImage();
-        VertexItterator++;
+        //VertexItterator++;
         state = GameStates.NewTurn;
         currentPlayer = turnScript.currentPlayer();
         borderscript.ChangeCurrentPlayer(playerScript.GetPlayer(currentPlayer).GetPlayerColor());
