@@ -37,7 +37,7 @@ public class GameControllerScript : MonoBehaviour
 
     //private int xs, zs;
 
-    private float aimX, aimZ;
+    private float aimX = 0, aimZ = 0;
 
     private PointScript.Direction direction;
 
@@ -65,8 +65,8 @@ public class GameControllerScript : MonoBehaviour
 
     public GameObject debugCluster;
 
-    float fTileAimX;
-    float fTileAimZ;
+    float fTileAimX = 0;
+    float fTileAimZ = 0;
 
     int iTileAimX, iTileAimZ;
 
@@ -625,7 +625,7 @@ public class GameControllerScript : MonoBehaviour
             }
             catch (IndexOutOfRangeException e)
             {
-                Debug.Log(e);
+                //Debug.Log(e);
                 errorOutput = e.ToString();
             }
             if (showMesh)
