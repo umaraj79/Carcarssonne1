@@ -15,6 +15,7 @@ public class PointScript : MonoBehaviour
     int roadBlocks;
     int finalScore;
     bool broken = false;
+    int vertexIterator = 1;
 
     public enum Direction
     {
@@ -61,7 +62,10 @@ public class PointScript : MonoBehaviour
         visited = new bool[85];
         dfs(Vindex, weight, GameEnd);
         //Debug.Log(finalScore);
-
+        if(weight == TileScript.geography.City)
+        {
+            return counter;
+        }
         return finalScore;
     }
 
@@ -85,7 +89,35 @@ public class PointScript : MonoBehaviour
         {
             counter--;
         }
+        if (weight == TileScript.geography.City)
+        {
+            return counter;
+        }
         return finalScore;
+    }
+
+    public Direction getReverseDirection(Direction direction)
+    {
+        Direction res;
+        switch (direction)
+        {
+            case Direction.EAST:
+                res = Direction.WEST;
+                break;
+            case Direction.WEST:
+                res = Direction.EAST;
+                break;
+            case Direction.NORTH:
+                res = Direction.SOUTH;
+                break;
+            case Direction.SOUTH:
+                res = Direction.NORTH;
+                break;
+            default:
+                res = Direction.NORTH;
+                break;
+        }
+        return res;
     }
 
     private void dfsDirection(int Vindex, TileScript.geography weight, Direction direction, bool GameEnd)
@@ -99,22 +131,24 @@ public class PointScript : MonoBehaviour
             LinkedList<Edge> neighbours = g.getNeighbours(Vindex, weight, direction);
             for (int i = 0; i < neighbours.Count; i++)
             {
-                LinkedList<Edge> tmp = g.getGraph().ElementAt(neighbours.ElementAt(i).endVertex);
+                Debug.Log("Inside of for-loop is run");
+                LinkedList<Edge> tmp = g.getGraph().ElementAt(neighbours.ElementAt(i).endVertex); //Getting the tile that we are comming from
                 for(int j = 0; j < tmp.Count; j++)
                 {
                     if(tmp.ElementAt(j).endVertex == Vindex)
                     {
-                        Debug.Log("Meeple set on " + weight);
+                        //Debug.Log("Meeple set on " + weight);
                         tmp.ElementAt(j).hasMeeple = true;
                     }
                 }
                 if (!neighbours.ElementAt(i).hasMeeple)
                 {
-                    Debug.Log("Meeple set on " + weight);
+                    //Debug.Log("Meeple set on " + weight);
                     neighbours.ElementAt(i).hasMeeple = true;
                 }
                 else
                 {
+                    Debug.Log("Meeple found at VIndex: " + Vindex);
                     broken = true;
                 }
                 if (weight == TileScript.geography.Road)
@@ -139,6 +173,7 @@ public class PointScript : MonoBehaviour
                     dfs(neighbours.ElementAt(i).endVertex, weight, GameEnd);
                 }
             }
+            Debug.Log("outside of for-loop is run");
         }
         if (GameEnd)
         {
@@ -153,6 +188,7 @@ public class PointScript : MonoBehaviour
             for (int j = 0; j < g.getGraph().ElementAt(i).Count; j++)
             {
                 Debug.Log("Vertex: " + i + " " + g.getGraph().ElementAt(i).ElementAt(j).direction);
+                Debug.Log(g.getGraph().ElementAt(i).ElementAt(j).hasMeeple);
             }
         }
     }
@@ -185,8 +221,9 @@ public class PointScript : MonoBehaviour
             }
             if (weight == TileScript.geography.City)
             {
+
                 counter += 2;
-                //Debug.Log("Hit Town " + counter);
+                Debug.Log("Hit Town " + counter);
             }
             visited[Vindex] = true;
             
@@ -207,6 +244,7 @@ public class PointScript : MonoBehaviour
                     }
                     else
                     {
+                        Debug.Log("Meeple found at VIndex: " + Vindex);
                         broken = true;
                     }
                 }
@@ -242,6 +280,7 @@ public class PointScript : MonoBehaviour
 
     public void placeVertex(int Vindex, int[] Vindexes, TileScript.geography[] weights, TileScript.geography startCenter, TileScript.geography[] endCenters, Direction[] directions)
     {
+        vertexIterator = Vindex;
         for (int i = 0; i < Vindexes.Length; i++)
         {
             if (Vindexes[i] != 0)
@@ -267,7 +306,7 @@ public class PointScript : MonoBehaviour
                 graph.AddLast(new LinkedList<Edge>());
             }
         }
-        private Direction getReverseDirection(Direction direction)
+        public Direction getReverseDirection(Direction direction)
         {
             Direction res;
             switch (direction)
