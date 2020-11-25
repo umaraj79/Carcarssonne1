@@ -127,7 +127,7 @@ public class PointScript : MonoBehaviour
             counter++;
             //Debug.Log("DFS Direction " + counter);
             visited[Vindex] = true;
-            
+
             LinkedList<Edge> neighbours = g.getNeighbours(Vindex, weight, direction);
             for (int i = 0; i < neighbours.Count; i++)
             {
@@ -226,7 +226,7 @@ public class PointScript : MonoBehaviour
                 Debug.Log("Hit Town " + counter);
             }
             visited[Vindex] = true;
-            
+
             LinkedList<Edge> neighbours = g.getNeighbours(Vindex, weight);
             for (int i = 0; i < neighbours.Count; i++)
             {
@@ -237,8 +237,8 @@ public class PointScript : MonoBehaviour
                 }
                 else
                 {
-                    if(weight == TileScript.geography.Road) { 
-                        if (!visited[neighbours.ElementAt(i).endVertex]) { 
+                    if(weight == TileScript.geography.Road) {
+                        if (!visited[neighbours.ElementAt(i).endVertex]) {
                             broken = true;
                         }
                     }
@@ -259,7 +259,7 @@ public class PointScript : MonoBehaviour
                             //Debug.Log(finalScore);
                         }
                        //Debug.Log("RoadBlock hit");
-                        
+
                     }
                 }
                 if (neighbours.ElementAt(i).center == TileScript.geography.Village || neighbours.ElementAt(i).center == TileScript.geography.Grass)
@@ -348,7 +348,7 @@ public class PointScript : MonoBehaviour
             return result;
         }
 
-        
+
         public LinkedList<Edge> getNeighbours(int Vindex, TileScript.geography weight)
         {
             LinkedList<Edge> neighbours = new LinkedList<Edge>();
