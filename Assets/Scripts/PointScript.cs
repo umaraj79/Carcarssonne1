@@ -107,6 +107,7 @@ public class PointScript : MonoBehaviour
             LinkedList<Edge> neighbours = g.getNeighbours(Vindex, weight, direction);
             if (neighbours.Count == 0)
             {
+                Debug.Log("Found no neighbours");
                 placeVertex(this.vertexIterator++, new int[] { Vindex }, new TileScript.geography[] { weight }, TileScript.geography.Grass, new TileScript.geography[] { TileScript.geography.Grass }, new Direction[] { direction });
                 neighbours = g.getNeighbours(Vindex, weight, direction);
                 LinkedList<Edge> tmp = g.getGraph().ElementAt(neighbours.ElementAt(0).endVertex); //Getting the tile that we are comming from
