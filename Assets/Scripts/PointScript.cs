@@ -61,7 +61,10 @@ public class PointScript : MonoBehaviour
         visited = new bool[85];
         dfs(Vindex, weight, GameEnd);
         //Debug.Log(finalScore);
-
+        if(weight == TileScript.geography.City)
+        {
+            return counter;
+        }
         return finalScore;
     }
 
@@ -84,6 +87,10 @@ public class PointScript : MonoBehaviour
         if (counter > 2)
         {
             counter--;
+        }
+        if (weight == TileScript.geography.City)
+        {
+            return counter;
         }
         return finalScore;
     }
@@ -185,8 +192,9 @@ public class PointScript : MonoBehaviour
             }
             if (weight == TileScript.geography.City)
             {
+
                 counter += 2;
-                //Debug.Log("Hit Town " + counter);
+                Debug.Log("Hit Town " + counter);
             }
             visited[Vindex] = true;
             

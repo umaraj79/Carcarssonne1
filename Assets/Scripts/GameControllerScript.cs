@@ -365,6 +365,7 @@ public class GameControllerScript : MonoBehaviour
     {
         //Debug.Log("Searching from tile " + (x - 85) + " : " + (y - 85));
         visited[x, y] = true;
+
         if (placedTiles[x, y].GetComponent<TileScript>().North == TileScript.geography.City)
         {
             //Debug.Log("Searching North");
@@ -379,7 +380,7 @@ public class GameControllerScript : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85) + " : " + (y - 85+1) + " Is missing");
+                    Debug.Log("Tile at " + (x - 85) + " : " + (y - 85 + 1) + " Is missing");
                     cityIsFinished = false;
                 }
             }
@@ -399,7 +400,7 @@ public class GameControllerScript : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85+1) + " : " + (y - 85) + " Is missing");
+                    Debug.Log("Tile at " + (x - 85 + 1) + " : " + (y - 85) + " Is missing");
                     cityIsFinished = false;
                 }
             }
@@ -418,7 +419,7 @@ public class GameControllerScript : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85) + " : " + (y - 85 -1) + " Is missing");
+                    Debug.Log("Tile at " + (x - 85) + " : " + (y - 85 - 1) + " Is missing");
                     cityIsFinished = false;
                 }
             }
@@ -843,37 +844,42 @@ public class GameControllerScript : MonoBehaviour
                 if (!meeple.free)
                 {
                     int tileID = placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().id;
-                    int finalscore;
-                    if (CityIsFinished(meeple.x, meeple.z))
+                    int finalscore = 0;
+                    if (meeple.geography == TileScript.geography.City)
                     {
-                        if (placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Stream || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Road)
+                        if (CityIsFinished(meeple.x, meeple.z))
+                        {
+                            if (placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Stream || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Road)
+                            {
+                                finalscore = GetComponent<PointScript>().startDfsDirection(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
+                                Debug.Log("Finalscore: " + finalscore);
+                            }
+                            else
+                            {
+                                finalscore = GetComponent<PointScript>().startDfs(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, GameEnd);
+                                Debug.Log("Finalscore: " + finalscore);
+                            }
+                        }
+                    }
+                    else
+                    {
+
+                        if (placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Village || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass)
                         {
                             finalscore = GetComponent<PointScript>().startDfsDirection(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
-                            Debug.Log("Finalscore: " + finalscore);
+                            //Debug.Log("Finalscore: " + finalscore);
                         }
                         else
                         {
                             finalscore = GetComponent<PointScript>().startDfs(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, GameEnd);
-                            Debug.Log("Finalscore: " + finalscore);
+                            //Debug.Log("Finalscore: " + finalscore);
                         }
-                    }
 
-
-                    if (placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Village || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass)
-                    {
-                        finalscore = GetComponent<PointScript>().startDfsDirection(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
-                        //Debug.Log("Finalscore: " + finalscore);
-                    }
-                    else
-                    {
-                        finalscore = GetComponent<PointScript>().startDfs(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, GameEnd);
-                        //Debug.Log("Finalscore: " + finalscore);
-                    }
-
-                    if (placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Cloister)
-                    {
-                        finalscore = CheckSurroundedCloister(meeple.x, meeple.z, false);
-                        // Debug.Log("Finalscore: " + finalscore);
+                        if (placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Cloister)
+                        {
+                            finalscore = CheckSurroundedCloister(meeple.x, meeple.z, false);
+                            // Debug.Log("Finalscore: " + finalscore);
+                        }
                     }
 
                     if (finalscore > 0 && RealCheck)
@@ -1001,11 +1007,11 @@ public class GameControllerScript : MonoBehaviour
                 AimMeeple(Input.GetMouseButtonDown(0));
             }
 
-            if(CursorState == CursorStates.Inside)
+            if (CursorState == CursorStates.Inside)
             {
                 renderCurrentTile = true;
             }
-            if(state == GameStates.TileHeld)
+            if (state == GameStates.TileHeld)
             {
                 if (Input.GetMouseButtonDown(0))
                 {
