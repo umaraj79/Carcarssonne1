@@ -664,7 +664,7 @@ public class GameControllerScript : MonoBehaviour
         TileScript currentTileScript = placedTiles[xs + 85, zs + 85].GetComponent<TileScript>();
 
         bool res;
-        if (currentTileScript.getCenter() == TileScript.geography.Village || currentTileScript.getCenter() == TileScript.geography.Grass)
+        if (currentTileScript.getCenter() == TileScript.geography.Village || currentTileScript.getCenter() == TileScript.geography.Grass || currentTileScript.getCenter() == TileScript.geography.Cloister && direction != PointScript.Direction.CENTER)
         {
             res = GetComponent<PointScript>().testIfMeepleCantBePlacedDirection(currentTileScript.vIndex, meepleGeography, direction);
         }
