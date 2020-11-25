@@ -122,6 +122,7 @@ public class PointScript : MonoBehaviour
                 }
                 else
                 {
+                    Debug.Log("Meeple found at VIndex: " + Vindex);
                     broken = true;
                 }
                 if (weight == TileScript.geography.Road)
@@ -215,6 +216,7 @@ public class PointScript : MonoBehaviour
                     }
                     else
                     {
+                        Debug.Log("Meeple found at VIndex: " + Vindex);
                         broken = true;
                     }
                 }
