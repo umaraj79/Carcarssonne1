@@ -758,7 +758,102 @@ public class GameControllerScript : MonoBehaviour
             errorOutput = e.ToString();
         }
     }
+    /*
+    public MeepleScript[] GetMeepleInNeighbours(int x, int y)
+    {
+        MeepleScript[] res = new MeepleScript[4];
+        int itterator = 0;
+        List<PlayerScript.Player> players = playerScript.players;
+        //NORTH
+        if(placedTiles[x,y+1] != null)
+        {
+            TileScript ts = placedTiles[x, y + 1].GetComponent<TileScript>();
+            foreach(PlayerScript.Player p in players)
+            {
+                foreach(GameObject m in p.meeples)
+                {
+                    MeepleScript ms = m.GetComponent<MeepleScript>();
 
+                    if (!ms.free)
+                    {
+                        if(ms.vertex == ts.vIndex && ms.direction == PointScript.Direction.SOUTH)
+                        {
+                            res[itterator] = ms;
+                            itterator++;
+                        }
+                    }
+                }
+            }
+        }
+        //SOUTH
+        if (placedTiles[x, y - 1] != null)
+        {
+
+            TileScript ts = placedTiles[x, y - 1].GetComponent<TileScript>();
+            foreach (PlayerScript.Player p in players)
+            {
+                foreach (GameObject m in p.meeples)
+                {
+                    MeepleScript ms = m.GetComponent<MeepleScript>();
+
+                    if (!ms.free)
+                    {
+                        if (ms.vertex == ts.vIndex && ms.direction == PointScript.Direction.NORTH)
+                        {
+                            res[itterator] = ms;
+                            itterator++;
+                        }
+                    }
+                }
+            }
+        }
+        //EAST
+        if (placedTiles[x+1, y] != null)
+        {
+
+            TileScript ts = placedTiles[x+1, y].GetComponent<TileScript>();
+            foreach (PlayerScript.Player p in players)
+            {
+                foreach (GameObject m in p.meeples)
+                {
+                    MeepleScript ms = m.GetComponent<MeepleScript>();
+
+                    if (!ms.free)
+                    {
+                        if (ms.vertex == ts.vIndex && ms.direction == PointScript.Direction.WEST)
+                        {
+                            res[itterator] = ms;
+                            itterator++;
+                        }
+                    }
+                }
+            }
+        }
+        //WEST
+        if (placedTiles[x-1, y] != null)
+        {
+
+            TileScript ts = placedTiles[x-1, y].GetComponent<TileScript>();
+            foreach (PlayerScript.Player p in players)
+            {
+                foreach (GameObject m in p.meeples)
+                {
+                    MeepleScript ms = m.GetComponent<MeepleScript>();
+
+                    if (!ms.free)
+                    {
+                        if (ms.vertex == ts.vIndex && ms.direction == PointScript.Direction.EAST)
+                        {
+                            res[itterator] = ms;
+                            itterator++;
+                        }
+                    }
+                }
+            }
+        }
+        return res;
+    }
+    */
 
     public void PlaceMeeple(GameObject meeple, int xs, int zs, PointScript.Direction direction, TileScript.geography meepleGeography)
     {
@@ -802,6 +897,18 @@ public class GameControllerScript : MonoBehaviour
         tile.transform.position = new Vector3(2.0f * (x - 85), 0.0f, 2.0f * (y - 85));
         tile.GetComponentInChildren<MeshRenderer>().enabled = true;
         //Sätter alla HasMeeple();
+        /*
+        MeepleScript[] ms = GetMeepleInNeighbours(x, y);
+
+        foreach (MeepleScript m in ms)
+        {
+            if(m != null) { 
+                m.vertex = tile.GetComponent<TileScript>().vIndex;
+                m.x = x;
+                m.z = y;
+            }
+        }
+        */
         calculatePoints(false, false);
         state = GameStates.TileDown;
     }
@@ -958,6 +1065,10 @@ public class GameControllerScript : MonoBehaviour
                                 finalscore = GetComponent<PointScript>().startDfsDirection(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
                                 Debug.Log("Finalscore: " + finalscore);
 
+                            }
+                            else
+                            {
+                                GetComponent<PointScript>().startDfsDirection(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
                             }
                         }
                         else
