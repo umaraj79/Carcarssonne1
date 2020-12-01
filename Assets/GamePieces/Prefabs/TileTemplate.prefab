@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 722753183366755807}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.5253613, y: 7.9502134, z: -5.7014713}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 6079152475441053219}
@@ -46,6 +46,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   rotation: 0
+  meeple: 0
+  vIndex: 0
+  northOcupied: 0
+  southOcupied: 0
+  eastOcupied: 0
+  westOcupied: 0
+  centerOcupied: 0
   textures:
   - {fileID: 2800000, guid: c1fd0a1c9677b8647a036116ffea5b13, type: 3}
   - {fileID: 2800000, guid: 9d1380bd772b6e945bdf8b58693d0a58, type: 3}

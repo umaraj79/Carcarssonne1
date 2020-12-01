@@ -72,6 +72,8 @@ public class GameControllerScript : MonoBehaviour
 
     int iTileAimX, iTileAimZ;
 
+    public ErrorPlaneScript ErrorPlane;
+
 
     int tempX;
     int tempY;
@@ -644,7 +646,7 @@ public class GameControllerScript : MonoBehaviour
             try
             {
                 //If the player points their brick within the grid, the held brick is displayed at the grid point where the players cursor is pointing
-                if (placedTiles[(int)fTileAimX, (int)fTileAimZ] == null)
+                if (placedTiles[iTileAimX, iTileAimZ] == null)
                 {
                     showMesh = true;
                 }
@@ -980,13 +982,13 @@ public class GameControllerScript : MonoBehaviour
             if (TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
                 PlaceBrick(currentTile, iTileAimX, iTileAimZ);
-                invalidTile.GetComponent<CardSlideScript>().InvalidTile(false);
+                //invalidTile.GetComponent<CardSlideScript>().InvalidTile(false);
                 renderCurrentTile = false;
             }
             else if (!TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
-                invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
-
+                ErrorPlane.flash();
+                //invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
             }
         }
     }
@@ -1295,7 +1297,7 @@ public class GameControllerScript : MonoBehaviour
         }
 
 
-
+        ErrorPlane.UpdatePosition(iTileAimX, iTileAimZ);
         updateDebug();
     }
 
