@@ -136,8 +136,6 @@ public class GameControllerScript : MonoBehaviour
         borderscript = GetComponent<Borderscript>();
         playerScript = GetComponent<PlayerScript>();
 
-        players = 3;
-
         for (int i = 0; i < players; i++)
         {
             playerScript.CreatePlayer(i, "player " + i, colors[i]);
