@@ -116,7 +116,13 @@ public class GameControllerScript : MonoBehaviour
         stackScript = GetComponent<StackScript>().createStackScript();
         currentTile = stackScript.Pop();
         currentTile.name = "BaseTile";
+        Color32[] colors = new Color32[5];
 
+        colors[0] = new Color32(0, 255, 0, 255);
+        colors[1] = new Color32(255, 0, 0, 255);
+        colors[2] = new Color32(255, 255, 0, 255);
+        colors[3] = new Color32(255, 255, 255, 255);
+        colors[4] = new Color32(0, 0, 0, 0);
 
         VertexItterator = 1;
 
@@ -124,9 +130,10 @@ public class GameControllerScript : MonoBehaviour
         borderscript = GetComponent<Borderscript>();
         playerScript = GetComponent<PlayerScript>();
 
-        playerScript.CreatePlayer(0, "Adam", new Color32(0, 255, 0, 255));
-        playerScript.CreatePlayer(1, "Markus", new Color32(255, 0, 0, 255));
-        playerScript.CreatePlayer(2, "Henrik", new Color32(255, 255, 0, 255));
+        for (int i = 0; i < players; i++)
+        {
+            playerScript.CreatePlayer(i, "player " + i, colors[i]);
+        }
         //Debug.Log("Kommer hit");
         /*
                 this.players = players;
