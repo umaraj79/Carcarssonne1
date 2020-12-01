@@ -1123,7 +1123,12 @@ public class GameControllerScript : MonoBehaviour
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    tileConfirmedClick();
+                    //tileConfirmedClick();
+                    /*
+                     * TODO vi behöver en metod här som håller brickan på plats utan att faktiskt placera den.
+                     * Att faktiskt placera brickan ska göras i tileConfirmedClick().
+                     */
+
                 }
             }
 
@@ -1153,8 +1158,6 @@ public class GameControllerScript : MonoBehaviour
                 GetComponent<PointScript>().printEverything();
             }
         }
-
-
 
         updateDebug();
     }
