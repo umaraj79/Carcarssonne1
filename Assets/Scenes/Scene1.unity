@@ -431,7 +431,10 @@ MonoBehaviour:
   MeeplePrefab: {fileID: 2470780459563121935, guid: 5fbf783a14acac64b90b694dea663bdb,
     type: 3}
   mPanelGameOver: {fileID: 1935913737}
+  PlayerPanelPrefab: {fileID: 8202743150994716297, guid: d3282979e22aa934aa0669efaf9c5a2d,
+    type: 3}
   mTextGameOver: {fileID: 1028061335}
+  UI: {fileID: 3641876836137873312}
   debugCluster: {fileID: 3641876836137873311}
   state: 0
 --- !u!114 &1563461487
@@ -673,6 +676,41 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1914931206
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1914931207}
+  m_Layer: 5
+  m_Name: PlayerFrames
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1914931207
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914931206}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 3641876836137873313}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &1935913737 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3641876835351600279, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
@@ -887,6 +925,11 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1563461486}
+    - target: {fileID: 3641876835491682035, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PickupBrick
+      objectReference: {fileID: 0}
     - target: {fileID: 3641876835535793648, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1202,6 +1245,18 @@ PrefabInstance:
 --- !u!1 &3641876836137873311 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 365437125852118513, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
+    type: 3}
+  m_PrefabInstance: {fileID: 3641876836137873310}
+  m_PrefabAsset: {fileID: 0}
+--- !u!223 &3641876836137873312 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 3641876835535793651, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
+    type: 3}
+  m_PrefabInstance: {fileID: 3641876836137873310}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &3641876836137873313 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 3641876835535793648, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
     type: 3}
   m_PrefabInstance: {fileID: 3641876836137873310}
   m_PrefabAsset: {fileID: 0}
