@@ -38,6 +38,7 @@ public class TileScript : MonoBehaviour
         Grass,
         City,
         Stream,
+        CityStream,
         Cityroad
     };
     /// <summary>
@@ -251,9 +252,13 @@ public class TileScript : MonoBehaviour
         {
             Center = geography.Grass;
         }
-        if( id == 12 || id == 13 ||id == 17 || id == 18 || id == 20 || id == 21 || id == 22 || id == 23 || id == 24 || id == 33)
+        if( id == 12 || id == 13 ||id == 17 || id == 18 || id == 20 || id == 21 || id == 22 || id == 23 || id == 24)
         {
             Center = geography.City;
+        }
+        if(id == 33)
+        {
+            Center = geography.CityStream;
         }
         if(id == 16 || id == 19)
         {

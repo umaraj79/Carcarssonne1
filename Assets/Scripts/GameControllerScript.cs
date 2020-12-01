@@ -35,6 +35,8 @@ public class GameControllerScript : MonoBehaviour
 
     public GameObject MeeplePrefab;
 
+    public List<MeepleScript> MeeplesInCity;
+
     //private int xs, zs;
 
     private float aimX = 0, aimZ = 0;
@@ -351,29 +353,72 @@ public class GameControllerScript : MonoBehaviour
         return Neighbors;
     }
 
+    private MeepleScript FindMeeple(int x, int y, TileScript.geography geography)
+    {
+        MeepleScript res = null;
+
+        foreach(PlayerScript.Player p in playerScript.players)
+        {
+            foreach(GameObject m in p.meeples)
+            {
+                MeepleScript tmp = m.GetComponent<MeepleScript>();
+
+                if (tmp.geography == geography && tmp.x == x && tmp.z == y)
+                {
+                    return tmp;
+                }
+            }
+        }
+        return res;
+    }
+
+    private MeepleScript FindMeeple(int x, int y, TileScript.geography geography, PointScript.Direction direction)
+    {
+        MeepleScript res = null;
+
+        foreach (PlayerScript.Player p in playerScript.players)
+        {
+            foreach (GameObject m in p.meeples)
+            {
+                MeepleScript tmp = m.GetComponent<MeepleScript>();
+
+                if (tmp.geography == geography && tmp.x == x && tmp.z == y && tmp.direction == direction)
+                {
+                    return tmp;
+                }
+            }
+        }
+        return res;
+    }
+
     public bool CityIsFinishedDirection(int x, int y, PointScript.Direction direction)
     {
+        MeeplesInCity = new List<MeepleScript>();
+        MeeplesInCity.Add(FindMeeple(x, y, TileScript.geography.City, direction));
+
+
         cityIsFinished = true;
         visited = new bool[170, 170];
         RecursiveCityIsFinishedDirection(x, y, direction);
         Debug.Log(direction);
-        Debug.Log("City is finished: " + cityIsFinished);
         return cityIsFinished;
     }
 
     //Test City checker
     public bool CityIsFinished(int x, int y)
     {
+        MeeplesInCity = new List<MeepleScript>();
+        MeeplesInCity.Add(FindMeeple(x, y, TileScript.geography.City));
+
+
         cityIsFinished = true;
         visited = new bool[170, 170];
         RecursiveCityIsFinished(x, y);
-        Debug.Log("City is finished: " + cityIsFinished);
         return cityIsFinished;
     }
 
     public void RecursiveCityIsFinishedDirection(int x, int y, PointScript.Direction direction)
     {
-        //Debug.Log("Searching from tile " + (x - 85) + " : " + (y - 85));
         visited[x, y] = true;
         if (direction == PointScript.Direction.NORTH)
         {
@@ -383,14 +428,11 @@ public class GameControllerScript : MonoBehaviour
                 {
                     if (!visited[x, y + 1])
                     {
-                        Debug.Log("There is a tile at: " + (x) + " : " + (y + 1));
-                        Debug.Log(placedTiles[x, y + 1].GetComponent<TileScript>().id);
                         RecursiveCityIsFinished(x, y + 1);
                     }
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85) + " : " + (y - 85 + 1) + " Is missing");
                     cityIsFinished = false;
                 }
             }
@@ -399,20 +441,15 @@ public class GameControllerScript : MonoBehaviour
         {
             if (placedTiles[x, y].GetComponent<TileScript>().East == TileScript.geography.City)
             {
-                //Debug.Log("Searching East");
-
                 if (placedTiles[x + 1, y] != null)
                 {
                     if (!visited[x + 1, y])
                     {
-                        Debug.Log("There is a tile at: " + (x + 1) + " : " + y);
-                        Debug.Log(placedTiles[x + 1, y].GetComponent<TileScript>().id);
                         RecursiveCityIsFinished(x + 1, y);
                     }
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85 + 1) + " : " + (y - 85) + " Is missing");
                     cityIsFinished = false;
                 }
             }
@@ -421,19 +458,15 @@ public class GameControllerScript : MonoBehaviour
         {
             if (placedTiles[x, y].GetComponent<TileScript>().South == TileScript.geography.City)
             {
-                //Debug.Log("Searching South");
                 if (placedTiles[x, y - 1] != null)
                 {
                     if (!visited[x, y - 1])
                     {
-                        Debug.Log("There is a tile at: " + (x) + " : " + (y - 1));
-                        Debug.Log(placedTiles[x, y - 1].GetComponent<TileScript>().id);
                         RecursiveCityIsFinished(x, y - 1);
                     }
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85) + " : " + (y - 85 - 1) + " Is missing");
                     cityIsFinished = false;
                 }
             }
@@ -442,11 +475,8 @@ public class GameControllerScript : MonoBehaviour
         {
             if (placedTiles[x, y].GetComponent<TileScript>().West == TileScript.geography.City)
             {
-                //Debug.Log("Searching West");
                 if (placedTiles[x - 1, y] != null)
                 {
-                    Debug.Log("There is a tile at: " + (x - 1) + " : " + y);
-                    Debug.Log(placedTiles[x - 1, y].GetComponent<TileScript>().id);
                     if (!visited[x - 1, y])
                     {
 
@@ -455,22 +485,29 @@ public class GameControllerScript : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85 - 1) + " : " + (y - 85) + " Is missing");
                     cityIsFinished = false;
                 }
             }
         }
     }
 
+    private bool CityTileHasCityCenter(int x, int y)
+    {
+        return placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.City || placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.Cityroad;
+    }
+
+    private bool CityTileHasGrassOrStreamCenter(int x, int y)
+    {
+        return placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass || placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Stream;
+    }
+
     public void RecursiveCityIsFinished(int x, int y)
     {
-        //Debug.Log("Searching from tile " + (x - 85) + " : " + (y - 85));
         visited[x, y] = true;
 
         if (placedTiles[x, y].GetComponent<TileScript>().North == TileScript.geography.City)
         {
-            //Debug.Log("Searching North");
-            if (placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Grass || placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Stream)
+            if (!CityTileHasGrassOrStreamCenter(x, y))
             {
                 if (placedTiles[x, y + 1] != null)
                 {
@@ -481,7 +518,6 @@ public class GameControllerScript : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85) + " : " + (y - 85 + 1) + " Is missing");
                     cityIsFinished = false;
                 }
             }
@@ -489,8 +525,7 @@ public class GameControllerScript : MonoBehaviour
         }
         if (placedTiles[x, y].GetComponent<TileScript>().East == TileScript.geography.City)
         {
-            //Debug.Log("Searching East");
-            if (placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Grass && placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Stream)
+            if (!CityTileHasGrassOrStreamCenter(x, y))
             {
                 if (placedTiles[x + 1, y] != null)
                 {
@@ -501,15 +536,13 @@ public class GameControllerScript : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85 + 1) + " : " + (y - 85) + " Is missing");
                     cityIsFinished = false;
                 }
             }
         }
         if (placedTiles[x, y].GetComponent<TileScript>().South == TileScript.geography.City)
         {
-            //Debug.Log("Searching South");
-            if (placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Grass && placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Stream)
+            if (!CityTileHasGrassOrStreamCenter(x, y))
             {
                 if (placedTiles[x, y - 1] != null)
                 {
@@ -520,15 +553,13 @@ public class GameControllerScript : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85) + " : " + (y - 85 - 1) + " Is missing");
                     cityIsFinished = false;
                 }
             }
         }
         if (placedTiles[x, y].GetComponent<TileScript>().West == TileScript.geography.City)
         {
-            //Debug.Log("Searching West");
-            if (placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Grass && placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Stream)
+            if (!CityTileHasGrassOrStreamCenter(x, y))
             {
                 if (placedTiles[x - 1, y] != null)
                 {
@@ -540,7 +571,6 @@ public class GameControllerScript : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Tile at " + (x - 85 - 1) + " : " + (y - 85) + " Is missing");
                     cityIsFinished = false;
                 }
             }
@@ -650,7 +680,6 @@ public class GameControllerScript : MonoBehaviour
         if (fTileAimX > 0)
         {
             iTileAimX = ((int)(fTileAimX + 1f) / 2) + 85;
-
         }
         else
         {
