@@ -38,8 +38,8 @@ public class PointScript : MonoBehaviour
         counter = 0;
         visited = new bool[85];
         dfs(Vindex, weight, false);
-
-        return broken;
+        Debug.Log(broken);
+        return broken || roadBlocks == 2;
     }
 
     public bool testIfMeepleCantBePlacedDirection(int Vindex, TileScript.geography weight, Direction direction)
@@ -49,9 +49,9 @@ public class PointScript : MonoBehaviour
         visited = new bool[85];
         dfsDirection(Vindex, weight, direction, false);
 
-        //Debug.Log(counter);
+        Debug.Log(broken);
 
-        return broken;
+        return broken || roadBlocks == 2;
     }
 
     public int startDfs(int Vindex, TileScript.geography weight, bool GameEnd)
@@ -148,7 +148,6 @@ public class PointScript : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Meeple found at VIndex: " + Vindex);
                     broken = true;
                 }
                 if (weight == TileScript.geography.Road)
@@ -244,7 +243,6 @@ public class PointScript : MonoBehaviour
                     }
                     else
                     {
-                        Debug.Log("Meeple found at VIndex: " + Vindex);
                         broken = true;
                     }
                 }

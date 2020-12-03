@@ -359,9 +359,9 @@ public class GameControllerScript : MonoBehaviour
     {
         MeepleScript res = null;
 
-        foreach(PlayerScript.Player p in playerScript.players)
+        foreach (PlayerScript.Player p in playerScript.players)
         {
-            foreach(GameObject m in p.meeples)
+            foreach (GameObject m in p.meeples)
             {
                 MeepleScript tmp = m.GetComponent<MeepleScript>();
 
@@ -579,60 +579,77 @@ public class GameControllerScript : MonoBehaviour
         }
     }
 
-    public bool cantTileBePlaced(GameObject tile)
-    {
-        TileScript script = tile.GetComponent<TileScript>();
-        bool isNotAloneRemix = false;
 
+    private bool HasNeighbor(int x, int z)
+    {
+        if (x + 1 < placedTiles.GetLength(0))
+        {
+            if (placedTiles[x + 1, z] != null) return true;
+        }
+        if (x - 1 >= 0)
+        {
+            if (placedTiles[x - 1, z] != null) return true;
+        }
+        if (z + 1 < placedTiles.GetLength(1))
+        {
+            if (placedTiles[x, z + 1] != null) return true;
+        }
+        if (z - 1 >= 0)
+        {
+            if (placedTiles[x, z - 1] != null) return true;
+        }
+        return false;
+    }
+
+    private bool MatchGeographyOrNull(int x, int y, PointScript.Direction dir, TileScript.geography geography)
+    {
+        if (placedTiles[x, y] == null)
+        {
+            return true;
+        }
+        else if (placedTiles[x, y].GetComponent<TileScript>().getGeographyAt(dir) == geography)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public bool TileCanBePlaced(TileScript script)
+    {
+        //Debug.Log(placedTiles.GetLength(0) + " : " + placedTiles.GetLength(1));
         for (int i = 0; i < placedTiles.GetLength(0); i++)
         {
-            for (int k = 0; k < placedTiles.GetLength(1); k++)
+            for (int j = 0; j < placedTiles.GetLength(1); j++)
             {
-                if (placedTiles[i, k] != null)
+                if (HasNeighbor(i, j) && placedTiles[i, j] == null)
                 {
-                    if (placedTiles[i - 1, k] == null)
+                    for (int k = 0; k < 4; k++)
                     {
-
-                        isNotAloneRemix = true;
-                        for (int j = 0; j < 4; j++)
+                        if (MatchGeographyOrNull(i - 1, j, PointScript.Direction.EAST, script.West))
                         {
-                            if (script.East == placedTiles[i, k].GetComponent<TileScript>().West) return CheckNeighborsIfTileCanBePlaced(tile, i - 1, k);
-                            RotateTile();
+                            if (MatchGeographyOrNull(i + 1, j, PointScript.Direction.WEST, script.East))
+                            {
+                                if (MatchGeographyOrNull(i, j - 1, PointScript.Direction.NORTH, script.South))
+                                {
+                                    if (MatchGeographyOrNull(i, j + 1, PointScript.Direction.SOUTH, script.North))
+                                    {
+                                        ResetTileRotation();
+                                        return true;
+                                    }
+                                }
+                            }
                         }
-
-                    }
-                    if (placedTiles[i + 1, k] == null)
-                    {
-                        isNotAloneRemix = true;
-                        for (int j = 0; j < 4; j++)
-                        {
-                            if (script.West == placedTiles[i, k].GetComponent<TileScript>().East) return CheckNeighborsIfTileCanBePlaced(tile, i + 1, k);
-                            RotateTile();
-                        }
-
-                    }
-                    if (placedTiles[i, k - 1] == null)
-                    {
-                        isNotAloneRemix = true;
-                        for (int j = 0; j < 4; j++)
-                        {
-                            if (script.North == placedTiles[i, k].GetComponent<TileScript>().South) return CheckNeighborsIfTileCanBePlaced(tile, i, k - 1);
-                            RotateTile();
-                        }
-                    }
-                    if (placedTiles[i, k + 1] == null)
-                    {
-                        isNotAloneRemix = true;
-                        for (int j = 0; j < 4; j++)
-                        {
-                            if (script.South == placedTiles[i, k].GetComponent<TileScript>().North) return CheckNeighborsIfTileCanBePlaced(tile, i, k + 1);
-                            RotateTile();
-                        }
+                        RotateTile();
                     }
                 }
             }
         }
-        return isNotAloneRemix;
+        ResetTileRotation();
+        return false;
+
     }
 
     /// <summary>
@@ -789,102 +806,6 @@ public class GameControllerScript : MonoBehaviour
             errorOutput = e.ToString();
         }
     }
-    /*
-    public MeepleScript[] GetMeepleInNeighbours(int x, int y)
-    {
-        MeepleScript[] res = new MeepleScript[4];
-        int itterator = 0;
-        List<PlayerScript.Player> players = playerScript.players;
-        //NORTH
-        if(placedTiles[x,y+1] != null)
-        {
-            TileScript ts = placedTiles[x, y + 1].GetComponent<TileScript>();
-            foreach(PlayerScript.Player p in players)
-            {
-                foreach(GameObject m in p.meeples)
-                {
-                    MeepleScript ms = m.GetComponent<MeepleScript>();
-
-                    if (!ms.free)
-                    {
-                        if(ms.vertex == ts.vIndex && ms.direction == PointScript.Direction.SOUTH)
-                        {
-                            res[itterator] = ms;
-                            itterator++;
-                        }
-                    }
-                }
-            }
-        }
-        //SOUTH
-        if (placedTiles[x, y - 1] != null)
-        {
-
-            TileScript ts = placedTiles[x, y - 1].GetComponent<TileScript>();
-            foreach (PlayerScript.Player p in players)
-            {
-                foreach (GameObject m in p.meeples)
-                {
-                    MeepleScript ms = m.GetComponent<MeepleScript>();
-
-                    if (!ms.free)
-                    {
-                        if (ms.vertex == ts.vIndex && ms.direction == PointScript.Direction.NORTH)
-                        {
-                            res[itterator] = ms;
-                            itterator++;
-                        }
-                    }
-                }
-            }
-        }
-        //EAST
-        if (placedTiles[x+1, y] != null)
-        {
-
-            TileScript ts = placedTiles[x+1, y].GetComponent<TileScript>();
-            foreach (PlayerScript.Player p in players)
-            {
-                foreach (GameObject m in p.meeples)
-                {
-                    MeepleScript ms = m.GetComponent<MeepleScript>();
-
-                    if (!ms.free)
-                    {
-                        if (ms.vertex == ts.vIndex && ms.direction == PointScript.Direction.WEST)
-                        {
-                            res[itterator] = ms;
-                            itterator++;
-                        }
-                    }
-                }
-            }
-        }
-        //WEST
-        if (placedTiles[x-1, y] != null)
-        {
-
-            TileScript ts = placedTiles[x-1, y].GetComponent<TileScript>();
-            foreach (PlayerScript.Player p in players)
-            {
-                foreach (GameObject m in p.meeples)
-                {
-                    MeepleScript ms = m.GetComponent<MeepleScript>();
-
-                    if (!ms.free)
-                    {
-                        if (ms.vertex == ts.vIndex && ms.direction == PointScript.Direction.EAST)
-                        {
-                            res[itterator] = ms;
-                            itterator++;
-                        }
-                    }
-                }
-            }
-        }
-        return res;
-    }
-    */
 
     public void PlaceMeeple(GameObject meeple, int xs, int zs, PointScript.Direction direction, TileScript.geography meepleGeography)
     {
@@ -950,7 +871,7 @@ public class GameControllerScript : MonoBehaviour
         currentTile = stackScript.Pop();
         ResetTileRotation();
         renderCurrentTile = false;
-        if (cantTileBePlaced(currentTile))
+        if (!TileCanBePlaced(currentTile.GetComponent<TileScript>()))
         {
             Debug.Log("Tile not possible to place: discarding and drawing a new one. " + "Tile id: " + currentTile.GetComponent<TileScript>().id);
             currentTile = null;
@@ -981,13 +902,14 @@ public class GameControllerScript : MonoBehaviour
         {
             if (TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
+                ErrorPlane.flashConfirm();
                 PlaceBrick(currentTile, iTileAimX, iTileAimZ);
                 //invalidTile.GetComponent<CardSlideScript>().InvalidTile(false);
                 renderCurrentTile = false;
             }
             else if (!TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
-                ErrorPlane.flash();
+                ErrorPlane.flashError();
                 //invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
             }
         }
@@ -1295,8 +1217,6 @@ public class GameControllerScript : MonoBehaviour
                 GetComponent<PointScript>().printEverything();
             }
         }
-
-
         ErrorPlane.UpdatePosition(iTileAimX, iTileAimZ);
         updateDebug();
     }
@@ -1304,8 +1224,8 @@ public class GameControllerScript : MonoBehaviour
     private void updateDebug()
     {
         TileScript currentTileScript = currentTile.GetComponent<TileScript>();
-        debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = meepleGeography.ToString();
-        debugCluster.transform.Find("DebugText2").GetComponent<Text>().text = direction.ToString();
+        if (currentTile != null) debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = (currentTile.GetComponent<TileScript>().rotation == NewTileRotation).ToString();
+        debugCluster.transform.Find("DebugText2").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText3").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText4").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText5").GetComponent<Text>().text = "";

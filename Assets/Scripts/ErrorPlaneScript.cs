@@ -13,19 +13,24 @@ public class ErrorPlaneScript : MonoBehaviour
         mat.color = new Color(1, 0, 0, 0);
     }
 
-    public void flash()
+    public void flashError()
     {
         //StartCoroutine(FadeImage(false));
         //StartCoroutine(FadeImage(true));
-        if(ready)StartCoroutine(FadeImage());
+        if (ready) StartCoroutine(FadeImage(1, 0));
     }
 
-    IEnumerator FadeImage()
+    public void flashConfirm()
+    {
+        if (ready) StartCoroutine(FadeImage(0, 1));
+    }
+
+    IEnumerator FadeImage(int red, int green)
     {
         ready = false;
-        for (float i = 1; i >= 0; i -= Time.deltaTime)
+        for (float i = 1; i >= 0; i -= Time.deltaTime * 2)
         {
-            mat.color = new Color(1, 0, 0, i);
+            mat.color = new Color(red, green, 0, i);
             yield return null;
         }
         ready = true;
@@ -35,7 +40,7 @@ public class ErrorPlaneScript : MonoBehaviour
     {
         if (fadeAway)
         {
-            for(float i = 1; i >= 0; i -= Time.deltaTime)
+            for (float i = 1; i >= 0; i -= Time.deltaTime)
             {
                 mat.color = new Color(1, 0, 0, i);
                 yield return null;
@@ -43,7 +48,7 @@ public class ErrorPlaneScript : MonoBehaviour
         }
         else
         {
-            for(float i = 0; i <= 1; i+= Time.deltaTime)
+            for (float i = 0; i <= 1; i += Time.deltaTime)
             {
                 mat.color = new Color(1, 0, 0, i);
                 yield return null;
@@ -53,11 +58,14 @@ public class ErrorPlaneScript : MonoBehaviour
 
     public void UpdatePosition(int x, int y)
     {
-        x -= 85;
-        y -= 85;
+        if (ready)
+        {
+            x -= 85;
+            y -= 85;
 
-        x *= 2;
-        y *= 2;
-        transform.position = new Vector3(x, 0.1f, y);
+            x *= 2;
+            y *= 2;
+            transform.position = new Vector3(x, 0.1f, y);
+        }
     }
 }
