@@ -49,7 +49,13 @@ public class GameControllerScript : MonoBehaviour
 
     public RectTransform mPanelGameOver;
 
+    public Image PlayerPanelPrefab;
+
+    private List<Image> PlayerPanels;
+
     public Text mTextGameOver;
+
+    public Canvas UI;
 
     int NewTileRotation = 0;
 
@@ -109,7 +115,7 @@ public class GameControllerScript : MonoBehaviour
     {
 
         Platform = (PlatformStates)Enum.Parse(typeof(PlatformStates), PlayerPrefs.GetString("Platform"));
-
+        PlayerPanels = new List<Image>();
 
         placedTiles = new GameObject[170, 170];
         NewTileRotation = 0;
@@ -133,7 +139,14 @@ public class GameControllerScript : MonoBehaviour
         for (int i = 0; i < players; i++)
         {
             playerScript.CreatePlayer(i, "player " + i, colors[i]);
+            PlayerPanels.Add(Instantiate(PlayerPanelPrefab, new Vector3(-990, 715 + (-135 * i), 0), Quaternion.identity));
+            PlayerPanels[i].transform.SetParent(UI.transform, false);
+            PlayerPanels[i].GetComponentInChildren<Text>().color = playerScript.players[i].GetPlayerColor();
+            PlayerPanels[i].GetComponentInChildren<Text>().text = playerScript.players[i].GetPlayerName() + " : " + playerScript.players[i].GetPlayerScore();
         }
+
+
+
         //Debug.Log("Kommer hit");
         /*
                 this.players = players;
@@ -1167,13 +1180,25 @@ public class GameControllerScript : MonoBehaviour
         }
 
         updateDebug();
+        UpdatePlayerFrames();
+    }
+
+    private void UpdatePlayerFrames()
+    {
+        for (int i = 0; i < playerScript.players.Count; i++)
+        {
+            int xOffset = 0;
+            if (currentPlayer == i) xOffset = 70;
+            PlayerPanels[i].transform.position = new Vector3(300 + xOffset, PlayerPanels[i].transform.position.y);
+            PlayerPanels[i].GetComponentInChildren<Text>().text = playerScript.players[i].GetPlayerName() + " : " + playerScript.players[i].GetPlayerScore();
+        }
     }
 
     private void updateDebug()
     {
         TileScript currentTileScript = currentTile.GetComponent<TileScript>();
-        debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = meepleGeography.ToString();
-        debugCluster.transform.Find("DebugText2").GetComponent<Text>().text = direction.ToString();
+        debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText2").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText3").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText4").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText5").GetComponent<Text>().text = "";
@@ -1181,7 +1206,7 @@ public class GameControllerScript : MonoBehaviour
         debugCluster.transform.Find("DebugText7").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText8").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText9").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText10").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText10").GetComponent<Text>().text = currentPlayer.ToString();
     }
 
     public void toggleDebug()
