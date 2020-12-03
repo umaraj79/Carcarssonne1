@@ -15,7 +15,7 @@ public class PointScript : MonoBehaviour
     int roadBlocks;
     int finalScore;
     bool broken = false;
-    int vertexIterator = 1;
+    int vertexIterator = 0;
 
     public enum Direction
     {
@@ -96,30 +96,6 @@ public class PointScript : MonoBehaviour
         return finalScore;
     }
 
-    public Direction getReverseDirection(Direction direction)
-    {
-        Direction res;
-        switch (direction)
-        {
-            case Direction.EAST:
-                res = Direction.WEST;
-                break;
-            case Direction.WEST:
-                res = Direction.EAST;
-                break;
-            case Direction.NORTH:
-                res = Direction.SOUTH;
-                break;
-            case Direction.SOUTH:
-                res = Direction.NORTH;
-                break;
-            default:
-                res = Direction.NORTH;
-                break;
-        }
-        return res;
-    }
-
     private void dfsDirection(int Vindex, TileScript.geography weight, Direction direction, bool GameEnd)
     {
         if (!visited[Vindex])
@@ -129,9 +105,22 @@ public class PointScript : MonoBehaviour
             visited[Vindex] = true;
 
             LinkedList<Edge> neighbours = g.getNeighbours(Vindex, weight, direction);
+            if (neighbours.Count == 0)
+            {
+                placeVertex(this.vertexIterator++, new int[] { Vindex }, new TileScript.geography[] { weight }, TileScript.geography.Grass, new TileScript.geography[] { TileScript.geography.Grass }, new Direction[] { direction });
+                neighbours = g.getNeighbours(Vindex, weight, direction);
+                LinkedList<Edge> tmp = g.getGraph().ElementAt(neighbours.ElementAt(0).endVertex); //Getting the tile that we are comming from
+                if (tmp.ElementAt(0).endVertex == Vindex)
+                {
+                    //Debug.Log("Meeple set on " + weight);
+                    tmp.ElementAt(0).hasMeeple = true;
+                }
+                RemoveVertex(vertexIterator);
+                vertexIterator--;
+                neighbours.RemoveFirst();
+            }
             for (int i = 0; i < neighbours.Count; i++)
             {
-                Debug.Log("Inside of for-loop is run");
                 LinkedList<Edge> tmp = g.getGraph().ElementAt(neighbours.ElementAt(i).endVertex); //Getting the tile that we are comming from
                 for(int j = 0; j < tmp.Count; j++)
                 {
@@ -173,7 +162,7 @@ public class PointScript : MonoBehaviour
                     dfs(neighbours.ElementAt(i).endVertex, weight, GameEnd);
                 }
             }
-            Debug.Log("outside of for-loop is run");
+           
         }
         if (GameEnd)
         {
@@ -188,7 +177,6 @@ public class PointScript : MonoBehaviour
             for (int j = 0; j < g.getGraph().ElementAt(i).Count; j++)
             {
                 Debug.Log("Vertex: " + i + " " + g.getGraph().ElementAt(i).ElementAt(j).direction);
-                Debug.Log(g.getGraph().ElementAt(i).ElementAt(j).hasMeeple);
             }
         }
     }
@@ -306,7 +294,7 @@ public class PointScript : MonoBehaviour
                 graph.AddLast(new LinkedList<Edge>());
             }
         }
-        public Direction getReverseDirection(Direction direction)
+        private Direction getReverseDirection(Direction direction)
         {
             Direction res;
             switch (direction)
