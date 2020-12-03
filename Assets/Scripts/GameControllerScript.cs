@@ -51,7 +51,13 @@ public class GameControllerScript : MonoBehaviour
 
     public RectTransform mPanelGameOver;
 
+    public Image PlayerPanelPrefab;
+
+    private List<Image> PlayerPanels;
+
     public Text mTextGameOver;
+
+    public Canvas UI;
 
     int NewTileRotation = 0;
 
@@ -113,14 +119,20 @@ public class GameControllerScript : MonoBehaviour
     {
 
         Platform = (PlatformStates)Enum.Parse(typeof(PlatformStates), PlayerPrefs.GetString("Platform"));
-
+        PlayerPanels = new List<Image>();
 
         placedTiles = new GameObject[170, 170];
         NewTileRotation = 0;
         stackScript = GetComponent<StackScript>().createStackScript();
         currentTile = stackScript.Pop();
         currentTile.name = "BaseTile";
+        Color32[] colors = new Color32[5];
 
+        colors[0] = new Color32(0, 255, 0, 255);
+        colors[1] = new Color32(255, 0, 0, 255);
+        colors[2] = new Color32(255, 255, 0, 255);
+        colors[3] = new Color32(255, 255, 255, 255);
+        colors[4] = new Color32(0, 0, 0, 0);
 
         VertexItterator = 1;
 
@@ -128,9 +140,17 @@ public class GameControllerScript : MonoBehaviour
         borderscript = GetComponent<Borderscript>();
         playerScript = GetComponent<PlayerScript>();
 
-        playerScript.CreatePlayer(0, "Adam", new Color32(0, 255, 0, 255));
-        playerScript.CreatePlayer(1, "Markus", new Color32(255, 0, 0, 255));
-        playerScript.CreatePlayer(2, "Henrik", new Color32(255, 255, 0, 255));
+        for (int i = 0; i < players; i++)
+        {
+            playerScript.CreatePlayer(i, "player " + i, colors[i]);
+            PlayerPanels.Add(Instantiate(PlayerPanelPrefab, new Vector3(-990, 715 + (-135 * i), 0), Quaternion.identity));
+            PlayerPanels[i].transform.SetParent(UI.transform, false);
+            PlayerPanels[i].GetComponentInChildren<Text>().color = playerScript.players[i].GetPlayerColor();
+            PlayerPanels[i].GetComponentInChildren<Text>().text = playerScript.players[i].GetPlayerName() + " : " + playerScript.players[i].GetPlayerScore();
+        }
+
+
+
         //Debug.Log("Kommer hit");
         /*
                 this.players = players;
@@ -169,7 +189,7 @@ public class GameControllerScript : MonoBehaviour
         }
     }
 
-    //Kontrollerar att tilen får placeras på angivna koordinater 
+    //Kontrollerar att tilen får placeras på angivna koordinater
     public bool TilePlacementIsValid(GameObject tile, int x, int y)
     {
         TileScript script = tile.GetComponent<TileScript>();
@@ -854,7 +874,7 @@ public class GameControllerScript : MonoBehaviour
 
         foreach (MeepleScript m in ms)
         {
-            if(m != null) { 
+            if(m != null) {
                 m.vertex = tile.GetComponent<TileScript>().vIndex;
                 m.x = x;
                 m.z = y;
@@ -1187,7 +1207,12 @@ public class GameControllerScript : MonoBehaviour
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    tileConfirmedClick();
+                    //tileConfirmedClick();
+                    /*
+                     * TODO vi behöver en metod här som håller brickan på plats utan att faktiskt placera den.
+                     * Att faktiskt placera brickan ska göras i tileConfirmedClick().
+                     */
+
                 }
             }
 
@@ -1219,12 +1244,24 @@ public class GameControllerScript : MonoBehaviour
         }
         ErrorPlane.UpdatePosition(iTileAimX, iTileAimZ);
         updateDebug();
+        UpdatePlayerFrames();
+    }
+
+    private void UpdatePlayerFrames()
+    {
+        for (int i = 0; i < playerScript.players.Count; i++)
+        {
+            int xOffset = 0;
+            if (currentPlayer == i) xOffset = 70;
+            PlayerPanels[i].transform.position = new Vector3(300 + xOffset, PlayerPanels[i].transform.position.y);
+            PlayerPanels[i].GetComponentInChildren<Text>().text = playerScript.players[i].GetPlayerName() + " : " + playerScript.players[i].GetPlayerScore();
+        }
     }
 
     private void updateDebug()
     {
         TileScript currentTileScript = currentTile.GetComponent<TileScript>();
-        if (currentTile != null) debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = (currentTile.GetComponent<TileScript>().rotation == NewTileRotation).ToString();
+        debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText2").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText3").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText4").GetComponent<Text>().text = "";
@@ -1233,7 +1270,7 @@ public class GameControllerScript : MonoBehaviour
         debugCluster.transform.Find("DebugText7").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText8").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText9").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText10").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText10").GetComponent<Text>().text = currentPlayer.ToString();
     }
 
     public void toggleDebug()
