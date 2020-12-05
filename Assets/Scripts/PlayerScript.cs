@@ -75,6 +75,10 @@ public class PlayerScript : MonoBehaviour
         {
             this.score = playerScore;
         }
+        public void addScore(int scoreToAdd)
+        {
+            this.score = this.score + scoreToAdd;
+        }
 
         public Color32 GetPlayerColor()
         {

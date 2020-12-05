@@ -139,7 +139,6 @@ public class GameControllerScript : MonoBehaviour
         turnScript = GetComponent<TurnScript>();
         borderscript = GetComponent<Borderscript>();
         playerScript = GetComponent<PlayerScript>();
-
         for (int i = 0; i < players; i++)
         {
             playerScript.CreatePlayer(i, "player " + i, colors[i]);
@@ -520,7 +519,7 @@ public class GameControllerScript : MonoBehaviour
 
     private bool CityTileHasGrassOrStreamCenter(int x, int y)
     {
-        return placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass || placedTiles[x, y].GetComponent<TileScript>().getCenter() != TileScript.geography.Stream;
+        return placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass || placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.Stream;
     }
 
     public void RecursiveCityIsFinished(int x, int y)
@@ -543,7 +542,6 @@ public class GameControllerScript : MonoBehaviour
                     cityIsFinished = false;
                 }
             }
-
         }
         if (placedTiles[x, y].GetComponent<TileScript>().East == TileScript.geography.City)
         {
@@ -829,20 +827,33 @@ public class GameControllerScript : MonoBehaviour
 
     public void PlaceMeeple(GameObject meeple, int xs, int zs, PointScript.Direction direction, TileScript.geography meepleGeography)
     {
-        //TileScript currentTileScript = placedTiles[xs + 85, zs + 85].GetComponent<TileScript>();
         TileScript currentTileScript = currentTile.GetComponent<TileScript>();
-
+        TileScript.geography currentCenter = currentTileScript.getCenter();
         bool res;
-        if (currentTileScript.getCenter() == TileScript.geography.Village || currentTileScript.getCenter() == TileScript.geography.Grass || currentTileScript.getCenter() == TileScript.geography.Cloister && direction != PointScript.Direction.CENTER)
+        if (currentCenter == TileScript.geography.Village || currentCenter == TileScript.geography.Grass || currentCenter == TileScript.geography.Cloister && direction != PointScript.Direction.CENTER)
         {
             res = GetComponent<PointScript>().testIfMeepleCantBePlacedDirection(currentTileScript.vIndex, meepleGeography, direction);
+            Debug.Log("TestIfMeepleCantBePlacedDirection = " + res + " at direction : " + direction);
         }
         else
         {
             res = GetComponent<PointScript>().testIfMeepleCantBePlaced(currentTileScript.vIndex, meepleGeography);
-            Debug.Log(res);
+            Debug.Log("TestIfMeepleCantBePlaced = " + res);
         }
 
+        if(meepleGeography == TileScript.geography.City)
+        {
+            if(currentCenter == TileScript.geography.City)
+            {
+                res = CityIsFinished(xs + 85, zs + 85) || res;
+                Debug.Log("CityIsFinisehd OR res = " + res);
+            }
+            else
+            {
+                res = CityIsFinishedDirection(xs + 85, zs + 85, direction) || res;
+                Debug.Log("CityIsFinishedDirection OR res = " + res);
+            }
+        }
         if (!currentTileScript.checkIfOcupied(direction) && !res)
         {
             TileScript.geography geography = currentTileScript.getGeographyAt(direction);
@@ -1034,9 +1045,7 @@ public class GameControllerScript : MonoBehaviour
                         {
                             if (CityIsFinishedDirection(meeple.x, meeple.z, meeple.direction))
                             {
-
                                 finalscore = GetComponent<PointScript>().startDfsDirection(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
-                                Debug.Log("Finalscore: " + finalscore);
 
                             }
                             else
@@ -1049,7 +1058,6 @@ public class GameControllerScript : MonoBehaviour
                             if (CityIsFinished(meeple.x, meeple.z))
                             {
                                 finalscore = GetComponent<PointScript>().startDfs(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, GameEnd);
-                                Debug.Log("Finalscore: " + finalscore);
                             }
                         }
                     }
@@ -1152,7 +1160,6 @@ public class GameControllerScript : MonoBehaviour
         {
             RenderTempTile();
         }
-
         if (Platform == PlatformStates.Tablet)
         {
             int touches = Input.touchCount;
@@ -1207,12 +1214,11 @@ public class GameControllerScript : MonoBehaviour
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    //tileConfirmedClick();
+                    tileConfirmedClick();
                     /*
                      * TODO vi behöver en metod här som håller brickan på plats utan att faktiskt placera den.
                      * Att faktiskt placera brickan ska göras i tileConfirmedClick().
                      */
-
                 }
             }
 
