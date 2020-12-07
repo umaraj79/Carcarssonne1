@@ -1041,7 +1041,7 @@ public class GameControllerScript : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main;
-        NewGame(PlayerPrefs.GetInt("PlayerCount"));
+      
     }
 
     public void RotateTile()
