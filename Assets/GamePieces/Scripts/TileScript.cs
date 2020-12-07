@@ -38,6 +38,8 @@ public class TileScript : MonoBehaviour
         Grass,
         City,
         Stream,
+        CityStream,
+        RoadStream,
         Cityroad
     };
     /// <summary>
@@ -239,7 +241,7 @@ public class TileScript : MonoBehaviour
         {
             Center = geography.Cloister;
         }
-        if(id == 3|| id == 4 || id == 8 || id == 9 || id == 10 || id == 29 || id == 30 || id == 31)
+        if(id == 3|| id == 4 || id == 8 || id == 9 || id == 10 || id == 29 || id == 30)
         {
             Center = geography.Road;
         }
@@ -251,9 +253,13 @@ public class TileScript : MonoBehaviour
         {
             Center = geography.Grass;
         }
-        if( id == 12 || id == 13 ||id == 17 || id == 18 || id == 20 || id == 21 || id == 22 || id == 23 || id == 24 || id == 33)
+        if( id == 12 || id == 13 ||id == 17 || id == 18 || id == 20 || id == 21 || id == 22 || id == 23 || id == 24 || id == 31)
         {
             Center = geography.City;
+        }
+        if(id == 33)
+        {
+            Center = geography.CityStream;
         }
         if(id == 16 || id == 19)
         {

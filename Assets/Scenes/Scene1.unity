@@ -639,12 +639,14 @@ MonoBehaviour:
     type: 3}
   MeeplePrefab: {fileID: 2470780459563121935, guid: 5fbf783a14acac64b90b694dea663bdb,
     type: 3}
+  MeeplesInCity: []
   mPanelGameOver: {fileID: 1935913737}
   PlayerPanelPrefab: {fileID: 8202743150994716297, guid: d3282979e22aa934aa0669efaf9c5a2d,
     type: 3}
   mTextGameOver: {fileID: 1028061335}
-  UI: {fileID: 3641876836137873312}
+  UI: {fileID: 952956120}
   debugCluster: {fileID: 3641876836137873311}
+  ErrorPlane: {fileID: 907246072}
   state: 0
 --- !u!114 &1563461487
 MonoBehaviour:
@@ -1699,12 +1701,6 @@ PrefabInstance:
 --- !u!1 &3641876836137873311 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 365437125852118513, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
-    type: 3}
-  m_PrefabInstance: {fileID: 3641876836137873310}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &3641876836137873312 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3641876835240694655, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
     type: 3}
   m_PrefabInstance: {fileID: 3641876836137873310}
   m_PrefabAsset: {fileID: 0}

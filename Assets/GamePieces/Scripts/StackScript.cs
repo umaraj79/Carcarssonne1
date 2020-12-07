@@ -69,7 +69,7 @@ public class StackScript : MonoBehaviour{
         array[15] = 3;  array[16] = 2;  array[17] = 2;  array[18] = 2;  array[19] = 3;
         array[20] = 1;  array[21] = 1;  array[22] = 2;  array[23] = 1;  array[24] = 2;
         array[25] = 2;  array[26] = 2;  array[27] = 1;  array[28] = 1;  array[29] = 1;
-        array[30] = 1;  array[31] = 1;  array[32] = 1;
+        array[30] = 1;  array[31] = 0;  array[32] = 1;
 
         for (int i = 0; i < array.Length; i++)
         {
