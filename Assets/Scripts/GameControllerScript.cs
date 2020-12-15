@@ -11,7 +11,9 @@ public class GameControllerScript : MonoBehaviour
     //The points of each player where each index represents a player (index+1).
     // public int[] points;
     //The matrix of tiles (separated by 2.0f in all 2D directions)
-    private GameObject[,] placedTiles;
+    //private GameObject[,] placedTiles;
+    private PlacedTilesScript placedTiles;
+
     //Current tile held in hand
     private GameObject currentTile;
 
@@ -75,6 +77,7 @@ public class GameControllerScript : MonoBehaviour
 
     float fTileAimX = 0;
     float fTileAimZ = 0;
+    float xOffset, zOffset;
 
     int iTileAimX, iTileAimZ;
 
@@ -117,11 +120,14 @@ public class GameControllerScript : MonoBehaviour
     //Startar nytt spel
     public void NewGame(int players)
     {
+        xOffset = 0;
+        zOffset = 0;
 
+
+        placedTiles = GetComponent<PlacedTilesScript>();
         Platform = (PlatformStates)Enum.Parse(typeof(PlatformStates), PlayerPrefs.GetString("Platform"));
         PlayerPanels = new List<Image>();
-
-        placedTiles = new GameObject[170, 170];
+        
         NewTileRotation = 0;
         stackScript = GetComponent<StackScript>().createStackScript();
         currentTile = stackScript.Pop();
@@ -188,191 +194,6 @@ public class GameControllerScript : MonoBehaviour
         }
     }
 
-    //Kontrollerar att tilen får placeras på angivna koordinater
-    public bool TilePlacementIsValid(GameObject tile, int x, int y)
-    {
-        TileScript script = tile.GetComponent<TileScript>();
-        bool isNotAlone = false;
-        if (placedTiles[x - 1, y] != null)
-        {
-            isNotAlone = true;
-            if (script.West != placedTiles[x - 1, y].GetComponent<TileScript>().East) return false;
-        }
-        if (placedTiles[x + 1, y] != null)
-        {
-            isNotAlone = true;
-            if (script.East != placedTiles[x + 1, y].GetComponent<TileScript>().West) return false;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            isNotAlone = true;
-            if (script.South != placedTiles[x, y - 1].GetComponent<TileScript>().North) return false;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            isNotAlone = true;
-            if (script.North != placedTiles[x, y + 1].GetComponent<TileScript>().South) return false;
-        }
-        if (placedTiles[x, y] != null)
-        {
-            return false;
-        }
-        return isNotAlone;
-    }
-
-    public bool CheckNeighborsIfTileCanBePlaced(GameObject tile, int x, int y)
-    {
-        TileScript script = tile.GetComponent<TileScript>();
-        bool isNotAlone2 = false;
-
-        if (placedTiles[x - 1, y] != null)
-        {
-            isNotAlone2 = true;
-            if (script.West == placedTiles[x - 1, y].GetComponent<TileScript>().East) return false;
-        }
-        if (placedTiles[x + 1, y] != null)
-        {
-            isNotAlone2 = true;
-            if (script.East == placedTiles[x + 1, y].GetComponent<TileScript>().West) return false;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            isNotAlone2 = true;
-            if (script.South == placedTiles[x, y - 1].GetComponent<TileScript>().North) return false;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            isNotAlone2 = true;
-            if (script.North == placedTiles[x, y + 1].GetComponent<TileScript>().South) return false;
-        }
-
-        return isNotAlone2;
-    }
-
-    public int CheckSurroundedCloister(int x, int z, bool endTurn)
-    {
-        int pts = 1;
-        if (placedTiles[x - 1, z - 1] != null) pts++;
-        if (placedTiles[x - 1, z] != null) pts++;
-        if (placedTiles[x - 1, z + 1] != null) pts++;
-        if (placedTiles[x, z - 1] != null) pts++;
-        if (placedTiles[x, z + 1] != null) pts++;
-        if (placedTiles[x + 1, z - 1] != null) pts++;
-        if (placedTiles[x + 1, z] != null) pts++;
-        if (placedTiles[x + 1, z + 1] != null) pts++;
-        if (pts == 9 || endTurn)
-        {
-            return pts;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    public PointScript.Direction[] getDirections(int x, int y)
-    {
-        PointScript.Direction[] directions = new PointScript.Direction[4];
-        int itt = 0;
-        if (placedTiles[x + 1, y] != null)
-        {
-            directions[itt] = PointScript.Direction.EAST;
-            itt++;
-        }
-        if (placedTiles[x - 1, y] != null)
-        {
-            directions[itt] = PointScript.Direction.WEST;
-            itt++;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            directions[itt] = PointScript.Direction.NORTH;
-            itt++;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            directions[itt] = PointScript.Direction.SOUTH;
-        }
-        return directions;
-    }
-
-    public TileScript.geography[] getCenters(int x, int y)
-    {
-        TileScript.geography[] centers = new TileScript.geography[4];
-        int itt = 0;
-        if (placedTiles[x + 1, y] != null)
-        {
-            centers[itt] = placedTiles[x + 1, y].GetComponent<TileScript>().getCenter();
-            itt++;
-        }
-        if (placedTiles[x - 1, y] != null)
-        {
-            centers[itt] = placedTiles[x - 1, y].GetComponent<TileScript>().getCenter();
-            itt++;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            centers[itt] = placedTiles[x, y + 1].GetComponent<TileScript>().getCenter();
-            itt++;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            centers[itt] = placedTiles[x, y - 1].GetComponent<TileScript>().getCenter();
-        }
-        return centers;
-    }
-
-    public TileScript.geography[] getWeights(int x, int y)
-    {
-        TileScript.geography[] weights = new TileScript.geography[4];
-        int itt = 0;
-        if (placedTiles[x + 1, y] != null)
-        {
-            weights[itt] = placedTiles[x + 1, y].GetComponent<TileScript>().West;
-            itt++;
-        }
-        if (placedTiles[x - 1, y] != null)
-        {
-            weights[itt] = placedTiles[x - 1, y].GetComponent<TileScript>().East;
-            itt++;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            weights[itt] = placedTiles[x, y + 1].GetComponent<TileScript>().South;
-            itt++;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            weights[itt] = placedTiles[x, y - 1].GetComponent<TileScript>().North;
-        }
-        return weights;
-    }
-    //Hämtar grannarna till en specifik tile
-    public int[] GetNeighbors(int x, int y)
-    {
-        int[] Neighbors = new int[4];
-        int itt = 0;
-        if (placedTiles[x + 1, y] != null)
-        {
-            Neighbors[itt] = placedTiles[x + 1, y].GetComponent<TileScript>().vIndex;
-            itt++;
-        }
-        if (placedTiles[x - 1, y] != null)
-        {
-            Neighbors[itt] = placedTiles[x - 1, y].GetComponent<TileScript>().vIndex;
-            itt++;
-        }
-        if (placedTiles[x, y + 1] != null)
-        {
-            Neighbors[itt] = placedTiles[x, y + 1].GetComponent<TileScript>().vIndex;
-            itt++;
-        }
-        if (placedTiles[x, y - 1] != null)
-        {
-            Neighbors[itt] = placedTiles[x, y - 1].GetComponent<TileScript>().vIndex;
-        }
-        return Neighbors;
-    }
 
     private MeepleScript FindMeeple(int x, int y, TileScript.geography geography)
     {
@@ -417,7 +238,6 @@ public class GameControllerScript : MonoBehaviour
         MeeplesInCity = new List<MeepleScript>();
         MeeplesInCity.Add(FindMeeple(x, y, TileScript.geography.City, direction));
 
-
         cityIsFinished = true;
         visited = new bool[170, 170];
         RecursiveCityIsFinishedDirection(x, y, direction);
@@ -436,15 +256,14 @@ public class GameControllerScript : MonoBehaviour
         RecursiveCityIsFinished(x, y);
         return cityIsFinished;
     }
-
     public void RecursiveCityIsFinishedDirection(int x, int y, PointScript.Direction direction)
     {
         visited[x, y] = true;
         if (direction == PointScript.Direction.NORTH)
         {
-            if (placedTiles[x, y].GetComponent<TileScript>().North == TileScript.geography.City)
+            if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().North == TileScript.geography.City)
             {
-                if (placedTiles[x, y + 1] != null)
+                if (placedTiles.getPlacedTiles(x, y + 1) != null)
                 {
                     if (!visited[x, y + 1])
                     {
@@ -459,9 +278,9 @@ public class GameControllerScript : MonoBehaviour
         }
         if (direction == PointScript.Direction.EAST)
         {
-            if (placedTiles[x, y].GetComponent<TileScript>().East == TileScript.geography.City)
+            if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().East == TileScript.geography.City)
             {
-                if (placedTiles[x + 1, y] != null)
+                if (placedTiles.getPlacedTiles(x+1, y) != null)
                 {
                     if (!visited[x + 1, y])
                     {
@@ -476,9 +295,9 @@ public class GameControllerScript : MonoBehaviour
         }
         if (direction == PointScript.Direction.SOUTH)
         {
-            if (placedTiles[x, y].GetComponent<TileScript>().South == TileScript.geography.City)
+            if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().South == TileScript.geography.City)
             {
-                if (placedTiles[x, y - 1] != null)
+                if (placedTiles.getPlacedTiles(x, y-1) != null)
                 {
                     if (!visited[x, y - 1])
                     {
@@ -493,9 +312,9 @@ public class GameControllerScript : MonoBehaviour
         }
         if (direction == PointScript.Direction.WEST)
         {
-            if (placedTiles[x, y].GetComponent<TileScript>().West == TileScript.geography.City)
+            if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().West == TileScript.geography.City)
             {
-                if (placedTiles[x - 1, y] != null)
+                if (placedTiles.getPlacedTiles(x-1, y) != null)
                 {
                     if (!visited[x - 1, y])
                     {
@@ -510,130 +329,6 @@ public class GameControllerScript : MonoBehaviour
             }
         }
     }
-
-    private bool CityTileHasCityCenter(int x, int y)
-    {
-        return placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.City || placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.Cityroad;
-    }
-
-    private bool CityTileHasGrassOrStreamCenter(int x, int y)
-    {
-        return placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass || placedTiles[x, y].GetComponent<TileScript>().getCenter() == TileScript.geography.Stream;
-    }
-
-    public void RecursiveCityIsFinished(int x, int y)
-    {
-        visited[x, y] = true;
-
-        if (placedTiles[x, y].GetComponent<TileScript>().North == TileScript.geography.City)
-        {
-            if (!CityTileHasGrassOrStreamCenter(x, y))
-            {
-                if (placedTiles[x, y + 1] != null)
-                {
-                    if (!visited[x, y + 1])
-                    {
-                        RecursiveCityIsFinished(x, y + 1);
-                    }
-                }
-                else
-                {
-                    cityIsFinished = false;
-                }
-            }
-        }
-        if (placedTiles[x, y].GetComponent<TileScript>().East == TileScript.geography.City)
-        {
-            if (!CityTileHasGrassOrStreamCenter(x, y))
-            {
-                if (placedTiles[x + 1, y] != null)
-                {
-                    if (!visited[x + 1, y])
-                    {
-                        RecursiveCityIsFinished(x + 1, y);
-                    }
-                }
-                else
-                {
-                    cityIsFinished = false;
-                }
-            }
-        }
-        if (placedTiles[x, y].GetComponent<TileScript>().South == TileScript.geography.City)
-        {
-            if (!CityTileHasGrassOrStreamCenter(x, y))
-            {
-                if (placedTiles[x, y - 1] != null)
-                {
-                    if (!visited[x, y - 1])
-                    {
-                        RecursiveCityIsFinished(x, y - 1);
-                    }
-                }
-                else
-                {
-                    cityIsFinished = false;
-                }
-            }
-        }
-        if (placedTiles[x, y].GetComponent<TileScript>().West == TileScript.geography.City)
-        {
-            if (!CityTileHasGrassOrStreamCenter(x, y))
-            {
-                if (placedTiles[x - 1, y] != null)
-                {
-                    if (!visited[x - 1, y])
-                    {
-
-                        RecursiveCityIsFinished(x - 1, y);
-                    }
-                }
-                else
-                {
-                    cityIsFinished = false;
-                }
-            }
-        }
-    }
-
-
-    private bool HasNeighbor(int x, int z)
-    {
-        if (x + 1 < placedTiles.GetLength(0))
-        {
-            if (placedTiles[x + 1, z] != null) return true;
-        }
-        if (x - 1 >= 0)
-        {
-            if (placedTiles[x - 1, z] != null) return true;
-        }
-        if (z + 1 < placedTiles.GetLength(1))
-        {
-            if (placedTiles[x, z + 1] != null) return true;
-        }
-        if (z - 1 >= 0)
-        {
-            if (placedTiles[x, z - 1] != null) return true;
-        }
-        return false;
-    }
-
-    private bool MatchGeographyOrNull(int x, int y, PointScript.Direction dir, TileScript.geography geography)
-    {
-        if (placedTiles[x, y] == null)
-        {
-            return true;
-        }
-        else if (placedTiles[x, y].GetComponent<TileScript>().getGeographyAt(dir) == geography)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     public bool TileCanBePlaced(TileScript script)
     {
         //Debug.Log(placedTiles.GetLength(0) + " : " + placedTiles.GetLength(1));
@@ -641,17 +336,17 @@ public class GameControllerScript : MonoBehaviour
         {
             for (int j = 0; j < placedTiles.GetLength(1); j++)
             {
-                if (HasNeighbor(i, j) && placedTiles[i, j] == null)
+                if (placedTiles.HasNeighbor(i, j) && placedTiles.getPlacedTiles(i, j) == null)
                 {
                     for (int k = 0; k < 4; k++)
                     {
-                        if (MatchGeographyOrNull(i - 1, j, PointScript.Direction.EAST, script.West))
+                        if (placedTiles.MatchGeographyOrNull(i - 1, j, PointScript.Direction.EAST, script.West))
                         {
-                            if (MatchGeographyOrNull(i + 1, j, PointScript.Direction.WEST, script.East))
+                            if (placedTiles.MatchGeographyOrNull(i + 1, j, PointScript.Direction.WEST, script.East))
                             {
-                                if (MatchGeographyOrNull(i, j - 1, PointScript.Direction.NORTH, script.South))
+                                if (placedTiles.MatchGeographyOrNull(i, j - 1, PointScript.Direction.NORTH, script.South))
                                 {
-                                    if (MatchGeographyOrNull(i, j + 1, PointScript.Direction.SOUTH, script.North))
+                                    if (placedTiles.MatchGeographyOrNull(i, j + 1, PointScript.Direction.SOUTH, script.North))
                                     {
                                         ResetTileRotation();
                                         return true;
@@ -669,6 +364,84 @@ public class GameControllerScript : MonoBehaviour
 
     }
 
+ 
+
+    public void RecursiveCityIsFinished(int x, int y)
+    {
+        visited[x, y] = true;
+
+        if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().North == TileScript.geography.City)
+        {
+            if (!placedTiles.CityTileHasGrassOrStreamCenter(x, y))
+            {
+                if (placedTiles.getPlacedTiles(x, y +1) != null)
+                {
+                    if (!visited[x, y + 1])
+                    {
+                        RecursiveCityIsFinished(x, y + 1);
+                    }
+                }
+                else
+                {
+                    cityIsFinished = false;
+                }
+            }
+        }
+        if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().East == TileScript.geography.City)
+        {
+            if (!placedTiles.CityTileHasGrassOrStreamCenter(x, y))
+            {
+                if (placedTiles.getPlacedTiles(x+1, y) != null)
+                {
+                    if (!visited[x + 1, y])
+                    {
+                        RecursiveCityIsFinished(x + 1, y);
+                    }
+                }
+                else
+                {
+                    cityIsFinished = false;
+                }
+            }
+        }
+        if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().South == TileScript.geography.City)
+        {
+            if (!placedTiles.CityTileHasGrassOrStreamCenter(x, y))
+            {
+                if (placedTiles.getPlacedTiles(x, y-1) != null)
+                {
+                    if (!visited[x, y - 1])
+                    {
+                        RecursiveCityIsFinished(x, y - 1);
+                    }
+                }
+                else
+                {
+                    cityIsFinished = false;
+                }
+            }
+        }
+        if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().West == TileScript.geography.City)
+        {
+            if (!placedTiles.CityTileHasGrassOrStreamCenter(x, y))
+            {
+                if (placedTiles.getPlacedTiles(x+1, y) != null)
+                {
+                    if (!visited[x - 1, y])
+                    {
+
+                        RecursiveCityIsFinished(x - 1, y);
+                    }
+                }
+                else
+                {
+                    cityIsFinished = false;
+                }
+            }
+        }
+    }
+
+
     /// <summary>
     /// AimTile doesn't do anything but visualize where in the tile grid the player is pointing.
     /// </summary>
@@ -680,7 +453,7 @@ public class GameControllerScript : MonoBehaviour
             try
             {
                 //If the player points their brick within the grid, the held brick is displayed at the grid point where the players cursor is pointing
-                if (placedTiles[iTileAimX, iTileAimZ] == null)
+                if (placedTiles.getPlacedTiles(iTileAimX, iTileAimZ) == null)
                 {
                     showMesh = true;
                 }
@@ -740,9 +513,9 @@ public class GameControllerScript : MonoBehaviour
         aimZ = 0;
         try
         {
-            if (placedTiles[iTileAimX, iTileAimZ] == currentTile)
+            if (placedTiles.getPlacedTiles(iTileAimX, iTileAimZ) == currentTile)
             {
-                GameObject tile = placedTiles[iTileAimX, iTileAimZ];
+                GameObject tile = placedTiles.getPlacedTiles(iTileAimX, iTileAimZ);
                 TileScript tileScript = tile.GetComponent<TileScript>();
 
                 //aimX = TileAimX - (xs * 2);
@@ -876,10 +649,12 @@ public class GameControllerScript : MonoBehaviour
     {
         tempX = x;
         tempY = y;
+        Debug.Log(tile == null);
+        Debug.Log(GetComponent<PointScript>().enabled);
         tile.GetComponent<TileScript>().vIndex = VertexItterator;
-        GetComponent<PointScript>().placeVertex(VertexItterator, GetNeighbors(tempX, tempY), getWeights(tempX, tempY), currentTile.GetComponent<TileScript>().getCenter(), getCenters(tempX, tempY), getDirections(tempX, tempY));
+        GetComponent<PointScript>().placeVertex(VertexItterator, placedTiles.GetNeighbors(tempX, tempY), placedTiles.getWeights(tempX, tempY), currentTile.GetComponent<TileScript>().getCenter(), placedTiles.getCenters(tempX, tempY), placedTiles.getDirections(tempX, tempY));
         VertexItterator++;
-        placedTiles[x, y] = tile;
+        placedTiles.PlaceTile(x, y, tile);
         tile.transform.position = new Vector3(2.0f * (x - 85), 0.0f, 2.0f * (y - 85));
         tile.GetComponentInChildren<MeshRenderer>().enabled = true;
         //Sätter alla HasMeeple();
@@ -934,14 +709,14 @@ public class GameControllerScript : MonoBehaviour
     {
         if (state == GameStates.TileHeld)
         {
-            if (TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
+            if (placedTiles.TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
                 ErrorPlane.flashConfirm();
                 PlaceBrick(currentTile, iTileAimX, iTileAimZ);
                 //invalidTile.GetComponent<CardSlideScript>().InvalidTile(false);
                 renderCurrentTile = false;
             }
-            else if (!TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
+            else if (!placedTiles.TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
                 ErrorPlane.flashError();
                 //invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
@@ -955,7 +730,7 @@ public class GameControllerScript : MonoBehaviour
     {
         if (state == GameStates.TileDown || state == GameStates.MeepleHeld)
         {
-            placedTiles[(int)tempX, (int)tempY] = null;
+            placedTiles.removeTile((int)tempX, (int)tempY);
             currentTile.GetComponentInChildren<MeshRenderer>().enabled = false;
             state = GameStates.TileHeld;
 
@@ -1040,47 +815,47 @@ public class GameControllerScript : MonoBehaviour
                 MeepleScript meeple = p.meeples[j].GetComponent<MeepleScript>();
                 if (!meeple.free)
                 {
-                    int tileID = placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().id;
+                    int tileID = placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().id;
                     int finalscore = 0;
                     if (meeple.geography == TileScript.geography.City)
                     {
-                        if (placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Stream || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Road || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Village)
+                        if (placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().getCenter() == TileScript.geography.Stream || placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().getCenter() == TileScript.geography.Grass || placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().getCenter() == TileScript.geography.Road || placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().getCenter() == TileScript.geography.Village)
                         {
                             if (CityIsFinishedDirection(meeple.x, meeple.z, meeple.direction))
                             {
-                                finalscore = GetComponent<PointScript>().startDfsDirection(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
+                                finalscore = GetComponent<PointScript>().startDfsDirection(placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
 
                             }
                             else
                             {
-                                GetComponent<PointScript>().startDfsDirection(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
+                                GetComponent<PointScript>().startDfsDirection(placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
                             }
                         }
                         else
                         {
                             if (CityIsFinished(meeple.x, meeple.z))
                             {
-                                finalscore = GetComponent<PointScript>().startDfs(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, GameEnd);
+                                finalscore = GetComponent<PointScript>().startDfs(placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().vIndex, meeple.geography, GameEnd);
                             }
                         }
                     }
                     else
                     {
 
-                        if (placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Village || placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Grass)
+                        if (placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().getCenter() == TileScript.geography.Village || placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().getCenter() == TileScript.geography.Grass)
                         {
-                            finalscore = GetComponent<PointScript>().startDfsDirection(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
+                            finalscore = GetComponent<PointScript>().startDfsDirection(placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().vIndex, meeple.geography, meeple.direction, GameEnd);
                             //Debug.Log("Finalscore: " + finalscore);
                         }
                         else
                         {
-                            finalscore = GetComponent<PointScript>().startDfs(placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().vIndex, meeple.geography, GameEnd);
+                            finalscore = GetComponent<PointScript>().startDfs(placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().vIndex, meeple.geography, GameEnd);
                             //Debug.Log("Finalscore: " + finalscore);
                         }
 
-                        if (placedTiles[meeple.x, meeple.z].GetComponent<TileScript>().getCenter() == TileScript.geography.Cloister && meeple.direction == PointScript.Direction.CENTER)
+                        if (placedTiles.getPlacedTiles(meeple.x, meeple.z).GetComponent<TileScript>().getCenter() == TileScript.geography.Cloister && meeple.direction == PointScript.Direction.CENTER)
                         {
-                            finalscore = CheckSurroundedCloister(meeple.x, meeple.z, false);
+                            finalscore = placedTiles.CheckSurroundedCloister(meeple.x, meeple.z, false);
                             // Debug.Log("Finalscore: " + finalscore);
                         }
                     }
@@ -1095,11 +870,7 @@ public class GameControllerScript : MonoBehaviour
                 }
             }
         }
-
-
     }
-
-
 
     public void PlaceMeeple()
     {
@@ -1116,7 +887,7 @@ public class GameControllerScript : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main;
-      
+        NewGame(PlayerPrefs.GetInt("PlayerCount"));
     }
 
     public void RotateTile()
@@ -1178,7 +949,7 @@ public class GameControllerScript : MonoBehaviour
                 if (touch.phase == TouchPhase.Ended)
                 {
                     bool hasNoNeighbours = true;
-                    int[] neighbours = GetNeighbors(iTileAimX, iTileAimZ);
+                    int[] neighbours = placedTiles.GetNeighbors(iTileAimX, iTileAimZ);
                     for (int i = 0; i < neighbours.Length; i++)
                     {
                         if (neighbours[i] != 0)
@@ -1252,7 +1023,7 @@ public class GameControllerScript : MonoBehaviour
             }
         }
         ErrorPlane.UpdatePosition(iTileAimX, iTileAimZ);
-        updateDebug();
+        //updateDebug();
         UpdatePlayerFrames();
     }
 
