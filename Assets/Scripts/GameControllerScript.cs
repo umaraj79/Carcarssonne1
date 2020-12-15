@@ -649,6 +649,8 @@ public class GameControllerScript : MonoBehaviour
     {
         tempX = x;
         tempY = y;
+        Debug.Log(tile == null);
+        Debug.Log(GetComponent<PointScript>().enabled);
         tile.GetComponent<TileScript>().vIndex = VertexItterator;
         GetComponent<PointScript>().placeVertex(VertexItterator, placedTiles.GetNeighbors(tempX, tempY), placedTiles.getWeights(tempX, tempY), currentTile.GetComponent<TileScript>().getCenter(), placedTiles.getCenters(tempX, tempY), placedTiles.getDirections(tempX, tempY));
         VertexItterator++;
