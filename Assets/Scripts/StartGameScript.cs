@@ -18,6 +18,18 @@ public class StartGameScript: MonoBehaviour
         playerCount.text = nbrOfPlayers + " players";
     }
 
+    public void GameStartTablet()
+    {
+        PlayerPrefs.SetString("Platform", "Tablet");
+        gameSet();
+    }
+
+    public void GameStartComputer()
+    {
+        PlayerPrefs.SetString("Platform", "Computer");
+        gameSet();
+    }
+
     public void gameSet()
     {
         PlayerPrefs.SetInt("PlayerCount", nbrOfPlayers);

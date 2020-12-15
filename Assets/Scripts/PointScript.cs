@@ -15,6 +15,7 @@ public class PointScript : MonoBehaviour
     int roadBlocks;
     int finalScore;
     bool broken = false;
+    int vertexIterator = 0;
 
     public enum Direction
     {
@@ -33,24 +34,22 @@ public class PointScript : MonoBehaviour
 
     public bool testIfMeepleCantBePlaced(int Vindex, TileScript.geography weight)
     {
+        roadBlocks = 0;
         broken = false;
         counter = 0;
         visited = new bool[85];
         dfs(Vindex, weight, false);
-
-        return broken;
+        return broken || roadBlocks == 2;
     }
 
     public bool testIfMeepleCantBePlacedDirection(int Vindex, TileScript.geography weight, Direction direction)
     {
+        roadBlocks = 0;
         broken = false;
         counter = 0;
         visited = new bool[85];
         dfsDirection(Vindex, weight, direction, false);
-
-        //Debug.Log(counter);
-
-        return broken;
+        return broken || roadBlocks == 2; ;
     }
 
     public int startDfs(int Vindex, TileScript.geography weight, bool GameEnd)
@@ -61,7 +60,11 @@ public class PointScript : MonoBehaviour
         visited = new bool[85];
         dfs(Vindex, weight, GameEnd);
         //Debug.Log(finalScore);
-
+        if(weight == TileScript.geography.City)
+        {
+            return counter;
+        }
+        //Debug.Log("final score: " + finalScore);
         return finalScore;
     }
 
@@ -74,17 +77,23 @@ public class PointScript : MonoBehaviour
     /// <param name="direction"></param>
     public int startDfsDirection(int Vindex, TileScript.geography weight, Direction direction, bool GameEnd)
     {
-        counter = 1;
+        counter = 0;
         roadBlocks = 0;
+        //if (weight == TileScript.geography.Road) roadBlocks = 1;
         finalScore = 0;
         visited = new bool[85];
         dfsDirection(Vindex, weight, direction, GameEnd);
-        Debug.Log(finalScore);
+        //Debug.Log(finalScore);
         //Temporary fix
         if (counter > 2)
         {
             counter--;
         }
+        if (weight == TileScript.geography.City)
+        {
+            return counter;
+        }
+        //Debug.Log("final score: " + finalScore);
         return finalScore;
     }
 
@@ -95,38 +104,65 @@ public class PointScript : MonoBehaviour
             counter++;
             //Debug.Log("DFS Direction " + counter);
             visited[Vindex] = true;
-            
+
             LinkedList<Edge> neighbours = g.getNeighbours(Vindex, weight, direction);
+
+            if(weight == TileScript.geography.Road)
+            {
+                Debug.Log(weight + " : " + neighbours.Count);
+            }
+
             for (int i = 0; i < neighbours.Count; i++)
             {
-                LinkedList<Edge> tmp = g.getGraph().ElementAt(neighbours.ElementAt(i).endVertex);
+                Debug.Log("What");
+                LinkedList<Edge> tmp = g.getGraph().ElementAt(neighbours.ElementAt(i).endVertex); //Getting the tile that we are comming from
                 for(int j = 0; j < tmp.Count; j++)
                 {
                     if(tmp.ElementAt(j).endVertex == Vindex)
                     {
-                        Debug.Log("Meeple set on " + weight);
+                        //Debug.Log("Meeple set on " + weight);
                         tmp.ElementAt(j).hasMeeple = true;
                     }
                 }
                 if (!neighbours.ElementAt(i).hasMeeple)
                 {
-                    Debug.Log("Meeple set on " + weight);
+                    //Debug.Log("Meeple set on " + weight);
                     neighbours.ElementAt(i).hasMeeple = true;
                 }
                 else
                 {
                     broken = true;
                 }
+
+                //Does nothing right now.
+                if (neighbours.Count == 0)
+                {
+                    Debug.Log("No neighbors");
+                    placeVertex(vertexIterator++, new int[] { Vindex }, new TileScript.geography[] { weight }, TileScript.geography.Grass, new TileScript.geography[] { TileScript.geography.Grass }, new Direction[] { direction });
+                    neighbours = g.getNeighbours(Vindex, weight, direction);
+                    tmp = g.getGraph().ElementAt(neighbours.ElementAt(0).endVertex); //Getting the tile that we are comming from
+                    if (tmp.ElementAt(0).endVertex == Vindex)
+                    {
+                        //Debug.Log("Meeple set on " + weight);
+                        tmp.ElementAt(0).hasMeeple = true;
+                    }
+                    RemoveVertex(vertexIterator);
+                    vertexIterator--;
+                    neighbours.RemoveFirst();
+                }
                 if (weight == TileScript.geography.Road)
                 {
                     if (neighbours.ElementAt(i).center == TileScript.geography.Village || neighbours.ElementAt(i).center == TileScript.geography.Cloister || neighbours.ElementAt(i).center == TileScript.geography.City)
                     {
+                        //Debug.Log(neighbours.ElementAt(i).center);
                         roadBlocks++;
                         if (roadBlocks == 2)
                         {
                             finalScore = counter;
                             //Debug.Log(finalScore);
                         }
+                        dfsDirection(neighbours.ElementAt(i).endVertex, weight, Graph.getReverseDirection(direction), GameEnd);
+                        //Debug.Log(roadBlocks);
                         //Debug.Log("RoadBlock hit");
                     }
                 }
@@ -185,14 +221,16 @@ public class PointScript : MonoBehaviour
             }
             if (weight == TileScript.geography.City)
             {
+
                 counter += 2;
-                //Debug.Log("Hit Town " + counter);
+                Debug.Log("Hit Town " + counter);
             }
             visited[Vindex] = true;
-            
+
             LinkedList<Edge> neighbours = g.getNeighbours(Vindex, weight);
             for (int i = 0; i < neighbours.Count; i++)
             {
+                
                 if (!neighbours.ElementAt(i).hasMeeple)
                 {
                     //Debug.Log("Meeple set on " + weight);
@@ -200,8 +238,8 @@ public class PointScript : MonoBehaviour
                 }
                 else
                 {
-                    if(weight == TileScript.geography.Road) { 
-                        if (!visited[neighbours.ElementAt(i).endVertex]) { 
+                    if(weight == TileScript.geography.Road) {
+                        if (!visited[neighbours.ElementAt(i).endVertex]) {
                             broken = true;
                         }
                     }
@@ -209,11 +247,31 @@ public class PointScript : MonoBehaviour
                     {
                         broken = true;
                     }
+                }/*
+                LinkedList<Edge> tmp = g.getGraph().ElementAt(neighbours.ElementAt(i).endVertex); //Getting the tile that we are comming from
+                for (int j = 0; j < tmp.Count; j++)
+                {
+                    if (tmp.ElementAt(j).endVertex == Vindex)
+                    {
+                        //Debug.Log("Meeple set on " + weight);
+                        tmp.ElementAt(j).hasMeeple = true;
+                    }
                 }
+                if (!neighbours.ElementAt(i).hasMeeple)
+                {
+                    //Debug.Log("Meeple set on " + weight);
+                    neighbours.ElementAt(i).hasMeeple = true;
+                }
+                else
+                {
+                    broken = true;
+                }
+                */
                 if (weight == TileScript.geography.Road)
                 {
-                    if (neighbours.ElementAt(i).center == TileScript.geography.Village || neighbours.ElementAt(i).center == TileScript.geography.Cloister || neighbours.ElementAt(i).center == TileScript.geography.City)
+                    if (neighbours.ElementAt(i).center == TileScript.geography.Village || neighbours.ElementAt(i).center == TileScript.geography.Cloister || neighbours.ElementAt(i).center == TileScript.geography.City || neighbours.ElementAt(i).center == TileScript.geography.RoadStream)
                     {
+                        //Debug.Log(neighbours.ElementAt(i).center);
                         roadBlocks++;
                         if (roadBlocks == 2)
                         {
@@ -221,7 +279,7 @@ public class PointScript : MonoBehaviour
                             //Debug.Log(finalScore);
                         }
                        //Debug.Log("RoadBlock hit");
-                        
+
                     }
                 }
                 if (neighbours.ElementAt(i).center == TileScript.geography.Village || neighbours.ElementAt(i).center == TileScript.geography.Grass)
@@ -242,6 +300,7 @@ public class PointScript : MonoBehaviour
 
     public void placeVertex(int Vindex, int[] Vindexes, TileScript.geography[] weights, TileScript.geography startCenter, TileScript.geography[] endCenters, Direction[] directions)
     {
+        vertexIterator = Vindex;
         for (int i = 0; i < Vindexes.Length; i++)
         {
             if (Vindexes[i] != 0)
@@ -267,7 +326,7 @@ public class PointScript : MonoBehaviour
                 graph.AddLast(new LinkedList<Edge>());
             }
         }
-        private Direction getReverseDirection(Direction direction)
+        public static Direction getReverseDirection(Direction direction)
         {
             Direction res;
             switch (direction)
@@ -309,7 +368,7 @@ public class PointScript : MonoBehaviour
             return result;
         }
 
-        
+
         public LinkedList<Edge> getNeighbours(int Vindex, TileScript.geography weight)
         {
             LinkedList<Edge> neighbours = new LinkedList<Edge>();

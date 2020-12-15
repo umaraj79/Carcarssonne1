@@ -6,9 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/UI.unity
-    guid: e6df89d13e1b44d449e5b49562511aa6
-  - enabled: 1
     path: Assets/Scenes/StartMeny.unity
     guid: 4ccb87cc22f08234b9b288851c0f3a8d
   - enabled: 1
@@ -16,4 +13,8 @@ EditorBuildSettings:
     guid: 3e9288d3c6c1a5241b0a619708fad04f
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 1ee38b3e98220468faebb46400b68e96,
+      type: 2}
+    UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: 2187f296d0c654b1c9a8855668e26d7d,
+      type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 350a7f2a71be642b6a55d7946448b9f6,
       type: 2}
