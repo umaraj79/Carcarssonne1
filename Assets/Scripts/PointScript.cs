@@ -172,7 +172,7 @@ public class PointScript : MonoBehaviour
                     }
                     if (firstTile[Vindex])
                     {
-                        roadBlocks++;
+                        roadBlocks = 2;
                         if (roadBlocks == 2)
                         {
                             finalScore = counter;
@@ -296,7 +296,7 @@ public class PointScript : MonoBehaviour
                     }
                     if (firstTile[Vindex])
                     {
-                        roadBlocks++;
+                        roadBlocks = 2;
                         if (roadBlocks == 2)
                         {
                             finalScore = counter;
