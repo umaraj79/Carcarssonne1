@@ -3,7 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.ARFoundation;
+using UnityEngine.XR.ARSubsystems;
 
+[RequireComponent (typeof(ARRaycastManager))] 
 public class GameControllerScript : MonoBehaviour
 {
     //Number of players
@@ -73,6 +76,14 @@ public class GameControllerScript : MonoBehaviour
     int tempY;
     Color32 playerColor;
 
+    //ARGrejer test
+    private ARRaycastManager _ARRaycastManager;
+    private Vector3 touchPosition;
+    public GameObject testCurrentTile;
+    public GameObject testObjectToPlace;
+
+    static List<ARRaycastHit> hits = new List<ARRaycastHit>();
+
     //Add Meeple Down state functionality
     public enum GameStates
     {
@@ -100,9 +111,11 @@ public class GameControllerScript : MonoBehaviour
         placedTiles = new GameObject[170, 170];
         NewTileRotation = 0;
         stackScript = GetComponent<StackScript>().createStackScript();
-        currentTile = stackScript.Pop();
-        currentTile.name = "BaseTile";
-
+        // currentTile = stackScript.Pop();
+        // currentTile.name = "BaseTile";
+        testCurrentTile = stackScript.Pop();
+        //testCurrentTile.name = "BaseTile";
+        
 
         VertexItterator = 1;
 
@@ -124,12 +137,30 @@ public class GameControllerScript : MonoBehaviour
                     meeples[i] = (generateMeeples(i));
                 }
         */
-        PlaceBrick(currentTile, 85, 85);
+        // PlaceBrick(currentTile, 85, 85);
         getInvalidTileImage();
         VertexItterator++;
         state = GameStates.NewTurn;
         currentPlayer = turnScript.currentPlayer();
         borderscript.ChangeCurrentPlayer(playerScript.GetPlayer(currentPlayer).GetPlayerColor());
+    }
+    private void Awake()
+    {
+        _ARRaycastManager = GetComponent<ARRaycastManager>();
+    }
+
+    bool TryGetTouchPosition(out Vector3 touchPosition)
+    {
+        if (Input.touchCount > 0)
+        {
+            touchPosition = Input.GetTouch(0).position;
+            return true;
+        }
+        else
+        {
+            touchPosition = default;
+            return false;
+        }
     }
 
 
@@ -917,6 +948,26 @@ public class GameControllerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!TryGetTouchPosition(out Vector3 touchPosition))
+        {
+            return;
+        }
+        if(_ARRaycastManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
+        {
+            var hitPose = hits[0].pose;
+            if (currentTile == null)
+            {
+                
+                //currentTile = Instantiate(testObjectToPlace, hitPose.position, hitPose.rotation);
+                currentTile = testCurrentTile;
+                //currentTile = Instantiate(testCurrentTile, hitPose.position, hitPose.rotation);
+                currentTile.name = "BaseTile";
+                currentTile.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
+                PlaceBrick(currentTile, (int)hitPose.position.x, (int)hitPose.position.y);
+                //PlaceBrick(currentTile, 85, 85);
+                updateDebug();
+            }
+        }
         if (Input.mousePosition.x > 2149 || Input.mousePosition.x < 315 || Input.mousePosition.y > 1460 || Input.mousePosition.y < 220)
         {
             CursorState = CursorStates.Outside;
@@ -993,7 +1044,7 @@ public class GameControllerScript : MonoBehaviour
         TileScript currentTileScript = currentTile.GetComponent<TileScript>();
         debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = meepleGeography.ToString();
         debugCluster.transform.Find("DebugText2").GetComponent<Text>().text = direction.ToString();
-        debugCluster.transform.Find("DebugText3").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText3").GetComponent<Text>().text = currentTile.transform.position.x.ToString();
         debugCluster.transform.Find("DebugText4").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText5").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText6").GetComponent<Text>().text = "";
