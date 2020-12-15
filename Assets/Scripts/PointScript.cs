@@ -11,6 +11,7 @@ public class PointScript : MonoBehaviour
     int[] tilesList;
     int nbrOfVertices = 85;
     bool[] visited;
+    bool[] firstTile;
     int counter;
     int roadBlocks;
     int finalScore;
@@ -58,6 +59,8 @@ public class PointScript : MonoBehaviour
         roadBlocks = 0;
         finalScore = 0;
         visited = new bool[85];
+        firstTile = new bool[85];
+        firstTile[Vindex] = true;
         dfs(Vindex, weight, GameEnd);
         //Debug.Log(finalScore);
         if(weight == TileScript.geography.City)
@@ -82,6 +85,8 @@ public class PointScript : MonoBehaviour
         //if (weight == TileScript.geography.Road) roadBlocks = 1;
         finalScore = 0;
         visited = new bool[85];
+        firstTile = new bool[85];
+        firstTile[Vindex] = true;
         dfsDirection(Vindex, weight, direction, GameEnd);
         //Debug.Log(finalScore);
         //Temporary fix
@@ -99,7 +104,7 @@ public class PointScript : MonoBehaviour
 
     private void dfsDirection(int Vindex, TileScript.geography weight, Direction direction, bool GameEnd)
     {
-        if (!visited[Vindex])
+        if (!visited[Vindex] || firstTile[Vindex])
         {
             counter++;
             //Debug.Log("DFS Direction " + counter);
@@ -165,6 +170,15 @@ public class PointScript : MonoBehaviour
                         //Debug.Log(roadBlocks);
                         //Debug.Log("RoadBlock hit");
                     }
+                    if (firstTile[Vindex])
+                    {
+                        roadBlocks++;
+                        if (roadBlocks == 2)
+                        {
+                            finalScore = counter;
+                            //Debug.Log(finalScore);
+                        }
+                    }
                 }
                 if (neighbours.ElementAt(i).center == TileScript.geography.Village || neighbours.ElementAt(i).center == TileScript.geography.Grass)
                 {
@@ -213,7 +227,7 @@ public class PointScript : MonoBehaviour
 
     private void dfs(int Vindex, TileScript.geography weight, bool GameEnd)
     {
-        if (!visited[Vindex])
+        if (!visited[Vindex] || firstTile[Vindex])
         {
             if (weight == TileScript.geography.Road)
             {
@@ -279,7 +293,15 @@ public class PointScript : MonoBehaviour
                             //Debug.Log(finalScore);
                         }
                        //Debug.Log("RoadBlock hit");
-
+                    }
+                    if (firstTile[Vindex])
+                    {
+                        roadBlocks++;
+                        if (roadBlocks == 2)
+                        {
+                            finalScore = counter;
+                            //Debug.Log(finalScore);
+                        }
                     }
                 }
                 if (neighbours.ElementAt(i).center == TileScript.geography.Village || neighbours.ElementAt(i).center == TileScript.geography.Grass)
