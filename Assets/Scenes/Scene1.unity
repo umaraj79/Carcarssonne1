@@ -653,6 +653,7 @@ MonoBehaviour:
   MeeplePrefab: {fileID: 2470780459563121935, guid: 5fbf783a14acac64b90b694dea663bdb,
     type: 3}
   MeeplesInCity: []
+  placementIndicator: {fileID: 152646584}
   mPanelGameOver: {fileID: 1935913737}
   PlayerPanelPrefab: {fileID: 8202743150994716297, guid: d3282979e22aa934aa0669efaf9c5a2d,
     type: 3}
@@ -1346,22 +1347,22 @@ PrefabInstance:
     - target: {fileID: 3641876835240694655, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 19.1822
+      value: 25.770514
       objectReference: {fileID: 0}
     - target: {fileID: 3641876835240694655, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 10.778395
+      value: 14.480339
       objectReference: {fileID: 0}
     - target: {fileID: 3641876835240694655, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.3977649
+      value: 1.877841
       objectReference: {fileID: 0}
     - target: {fileID: 3641876835240694655, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -7.5548
+      value: -7.567404
       objectReference: {fileID: 0}
     - target: {fileID: 3641876835240694655, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
         type: 3}

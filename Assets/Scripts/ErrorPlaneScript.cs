@@ -56,16 +56,16 @@ public class ErrorPlaneScript : MonoBehaviour
         }
     }
 
-    public void UpdatePosition(int x, int y)
+    public void UpdatePosition(int x, int y, int z)
     {
         if (ready)
         {
             x -= 85;
-            y -= 85;
+            z -= 85;
 
             x *= 2;
-            y *= 2;
-            transform.position = new Vector3(x, 0.1f, y);
+            z *= 2;
+            transform.position = new Vector3(x, y + 0.1f, z);
         }
     }
 }

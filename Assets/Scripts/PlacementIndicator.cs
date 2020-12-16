@@ -8,6 +8,7 @@ public class PlacementIndicator : MonoBehaviour
 {
     private ARRaycastManager rayManager;
     private GameObject visual;
+    List<ARRaycastHit> hits;
 
     // Start is called before the first frame update
     void Start()
@@ -19,10 +20,9 @@ public class PlacementIndicator : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    public void Render()
     {
-        List<ARRaycastHit> hits = new List<ARRaycastHit>();
-
+        hits = new List<ARRaycastHit>();
         rayManager.Raycast(new Vector2(Screen.width / 2, Screen.height / 2), hits, TrackableType.Planes);
         if (hits.Count > 0)
         {
@@ -35,4 +35,22 @@ public class PlacementIndicator : MonoBehaviour
             }
         }
     }
+
+    public Vector3 GetPosition()
+    {
+        if (hits.Count > 0)
+        {
+            return hits[0].pose.position;
+        }
+        else return new Vector3(-1,-1,-1);
+    }
+    public Quaternion GetRotation()
+    {
+        if (hits.Count > 0)
+        {
+            return hits[0].pose.rotation;
+        }
+        else return new Quaternion();
+    }
+
 }

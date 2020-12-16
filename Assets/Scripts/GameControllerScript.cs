@@ -25,9 +25,9 @@ public class GameControllerScript : MonoBehaviour
 
     private StackScript stackScript;
 
-    public Image invalidTile;
+    //public Image invalidTile;
 
-    public Image invalideMeeple;
+    //public Image invalideMeeple;
 
     public Camera mainCamera;
 
@@ -50,6 +50,8 @@ public class GameControllerScript : MonoBehaviour
     private TurnScript turnScript;
 
     private Borderscript borderscript;
+
+    public PlacementIndicator placementIndicator;
 
     public RectTransform mPanelGameOver;
 
@@ -77,7 +79,7 @@ public class GameControllerScript : MonoBehaviour
 
     float fTileAimX = 0;
     float fTileAimZ = 0;
-    float xOffset, zOffset;
+    float xOffset, zOffset, yOffset;
 
     int iTileAimX, iTileAimZ;
 
@@ -91,6 +93,7 @@ public class GameControllerScript : MonoBehaviour
     //Add Meeple Down state functionality
     public enum GameStates
     {
+        NewGame,
         NewTurn,
         TileHeld,
         TileDown,
@@ -98,6 +101,8 @@ public class GameControllerScript : MonoBehaviour
         MeepleDown,
         GameOver
     };
+
+
     public GameStates state;
 
     public enum CursorStates
@@ -117,17 +122,30 @@ public class GameControllerScript : MonoBehaviour
     private PlatformStates Platform;
 
 
+
+    private void PlaceFirstTile()
+    {
+        xOffset = placementIndicator.GetPosition().x;
+        zOffset = placementIndicator.GetPosition().z;
+        yOffset = placementIndicator.GetPosition().y * 5;
+
+        PlaceTile(currentTile, 85, 85, true);
+        //getInvalidTileImage();
+        state = GameStates.NewTurn;
+        errorOutput = currentTile.GetComponent<TileScript>().id.ToString();
+    }
+
+
     //Startar nytt spel
-    public void NewGame(int players)
+    public void NewGame()
     {
         xOffset = 0;
         zOffset = 0;
-
-
+        int players = PlayerPrefs.GetInt("PlayerCount");
         placedTiles = GetComponent<PlacedTilesScript>();
         Platform = (PlatformStates)Enum.Parse(typeof(PlatformStates), PlayerPrefs.GetString("Platform"));
         PlayerPanels = new List<Image>();
-        
+
         NewTileRotation = 0;
         stackScript = GetComponent<StackScript>().createStackScript();
         currentTile = stackScript.Pop();
@@ -153,9 +171,6 @@ public class GameControllerScript : MonoBehaviour
             PlayerPanels[i].GetComponentInChildren<Text>().color = playerScript.players[i].GetPlayerColor();
             PlayerPanels[i].GetComponentInChildren<Text>().text = playerScript.players[i].GetPlayerName() + " : " + playerScript.players[i].GetPlayerScore();
         }
-
-
-
         //Debug.Log("Kommer hit");
         /*
                 this.players = players;
@@ -167,15 +182,14 @@ public class GameControllerScript : MonoBehaviour
                     meeples[i] = (generateMeeples(i));
                 }
         */
-        PlaceBrick(currentTile, 85, 85);
-        getInvalidTileImage();
+
         //VertexItterator++;
-        state = GameStates.NewTurn;
+        state = GameStates.NewGame;
         currentPlayer = turnScript.currentPlayer();
         borderscript.ChangeCurrentPlayer(playerScript.GetPlayer(currentPlayer).GetPlayerColor());
     }
 
-
+/*
     private void getInvalidTileImage()
     {
         GameObject image = GameObject.FindGameObjectWithTag("InvalidTile");
@@ -193,7 +207,7 @@ public class GameControllerScript : MonoBehaviour
             invalideMeeple = image.GetComponent<Image>();
         }
     }
-
+*/
 
     private MeepleScript FindMeeple(int x, int y, TileScript.geography geography)
     {
@@ -470,7 +484,7 @@ public class GameControllerScript : MonoBehaviour
             if (showMesh)
             {
                 Mesh mesh = tileMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
-                Graphics.DrawMesh(mesh, new Vector3((iTileAimX - 85) * 2, 0.0f, (iTileAimZ - 85) * 2), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
+                Graphics.DrawMesh(mesh, new Vector3((iTileAimX - 85), 0.0f + yOffset, (iTileAimZ - 85)), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
             }
         }
     }
@@ -488,19 +502,19 @@ public class GameControllerScript : MonoBehaviour
 
         if (fTileAimX > 0)
         {
-            iTileAimX = ((int)(fTileAimX + 1f) / 2) + 85;
+            iTileAimX = ((int)(fTileAimX + 1f)) + 85;
         }
         else
         {
-            iTileAimX = ((int)(fTileAimX - 1f) / 2) + 85;
+            iTileAimX = ((int)(fTileAimX - 1f)) + 85;
         }
         if (fTileAimZ > 0)
         {
-            iTileAimZ = ((int)(fTileAimZ + 1f) / 2) + 85;
+            iTileAimZ = ((int)(fTileAimZ + 1f)) + 85;
         }
         else
         {
-            iTileAimZ = ((int)(fTileAimZ - 1f) / 2) + 85;
+            iTileAimZ = ((int)(fTileAimZ - 1f)) + 85;
         }
         //TileAimX = xs + 85;
         //TileAimZ = zs + 85;
@@ -520,8 +534,8 @@ public class GameControllerScript : MonoBehaviour
 
                 //aimX = TileAimX - (xs * 2);
                 //aimZ = TileAimZ - (zs * 2);
-                aimX = (fTileAimX - ((iTileAimX - 85) * 2));
-                aimZ = (fTileAimZ - ((iTileAimZ - 85) * 2));
+                aimX = (fTileAimX - ((iTileAimX - 85)));
+                aimZ = (fTileAimZ - ((iTileAimZ - 85)));
 
                 //Debug.Log("x: " + aimX + " z: " + aimZ);
                 int id = tile.GetComponent<TileScript>().id;
@@ -645,7 +659,7 @@ public class GameControllerScript : MonoBehaviour
     }
 
     //Metod för att placera en tile på brädan
-    public void PlaceBrick(GameObject tile, int x, int y)
+    public void PlaceTile(GameObject tile, int x, int y, bool firstTile)
     {
         tempX = x;
         tempY = y;
@@ -654,8 +668,14 @@ public class GameControllerScript : MonoBehaviour
         tile.GetComponent<TileScript>().vIndex = VertexItterator;
         GetComponent<PointScript>().placeVertex(VertexItterator, placedTiles.GetNeighbors(tempX, tempY), placedTiles.getWeights(tempX, tempY), currentTile.GetComponent<TileScript>().getCenter(), placedTiles.getCenters(tempX, tempY), placedTiles.getDirections(tempX, tempY));
         VertexItterator++;
-        placedTiles.PlaceTile(x, y, tile);
-        tile.transform.position = new Vector3(2.0f * (x - 85), 0.0f, 2.0f * (y - 85));
+        if (!firstTile) { 
+            placedTiles.PlaceTile(x, y, tile);
+        }
+        else
+        {
+            placedTiles.PlaceTile(x - (int)xOffset, y - (int)zOffset, tile);
+        }
+        tile.transform.position = new Vector3(1.0f * (x - 85 + (int)xOffset), 0.0f + (int)yOffset, 1.0f * (y - 85 + (int)zOffset));
         tile.GetComponentInChildren<MeshRenderer>().enabled = true;
         //Sätter alla HasMeeple();
         /*
@@ -712,7 +732,7 @@ public class GameControllerScript : MonoBehaviour
             if (placedTiles.TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
                 ErrorPlane.flashConfirm();
-                PlaceBrick(currentTile, iTileAimX, iTileAimZ);
+                PlaceTile(currentTile, iTileAimX, iTileAimZ, false);
                 //invalidTile.GetComponent<CardSlideScript>().InvalidTile(false);
                 renderCurrentTile = false;
             }
@@ -887,7 +907,7 @@ public class GameControllerScript : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main;
-        NewGame(PlayerPrefs.GetInt("PlayerCount"));
+        NewGame();
     }
 
     public void RotateTile()
@@ -934,14 +954,25 @@ public class GameControllerScript : MonoBehaviour
         {
             RenderTempTile();
         }
+        if(state == GameStates.NewGame)
+        {
+            errorOutput = "11";
+            placementIndicator.Render();
+        }
         if (Platform == PlatformStates.Tablet)
         {
             int touches = Input.touchCount;
             Touch touch = Input.GetTouch(0);
+
+
+
             if (touches > 0 && touches < 2 && CursorState == CursorStates.Inside)
             {
                 renderCurrentTile = true;
-
+                if (state == GameStates.NewGame)
+                {
+                    if(placementIndicator.GetPosition().x != -1) PlaceFirstTile();
+                }
                 if (touch.phase == TouchPhase.Moved)
                 {
                     RenderTempTile();
@@ -959,7 +990,7 @@ public class GameControllerScript : MonoBehaviour
                     }
                     if (hasNoNeighbours)
                     {
-                        invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
+                        //invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
                         renderCurrentTile = false;
                     }
                     if (!hasNoNeighbours)
@@ -1022,8 +1053,9 @@ public class GameControllerScript : MonoBehaviour
                 GetComponent<PointScript>().printEverything();
             }
         }
-        ErrorPlane.UpdatePosition(iTileAimX, iTileAimZ);
-        //updateDebug();
+        ErrorPlane.UpdatePosition(iTileAimX, (int)yOffset, iTileAimZ);
+
+        updateDebug();
         UpdatePlayerFrames();
     }
 
@@ -1048,9 +1080,9 @@ public class GameControllerScript : MonoBehaviour
         debugCluster.transform.Find("DebugText5").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText6").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText7").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText8").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText9").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText10").GetComponent<Text>().text = currentPlayer.ToString();
+        debugCluster.transform.Find("DebugText8").GetComponent<Text>().text = state.ToString();
+        debugCluster.transform.Find("DebugText9").GetComponent<Text>().text = placementIndicator.GetPosition().y.ToString();
+        if (placedTiles.getPlacedTiles(85, 85) != null) debugCluster.transform.Find("DebugText10").GetComponent<Text>().text =  placedTiles.getPlacedTiles(85,85).transform.position.y.ToString();
     }
 
     public void toggleDebug()
