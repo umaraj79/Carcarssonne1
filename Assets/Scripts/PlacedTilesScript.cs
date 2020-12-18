@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlacedTilesScript : MonoBehaviour
 {
+    public Vector3 BasePosition;
+
     private GameObject[,] placedTiles;
 
     void Start()
@@ -228,31 +230,34 @@ public class PlacedTilesScript : MonoBehaviour
         return isNotAlone2;
     }
     //Kontrollerar att tilen får placeras på angivna koordinater
-    public bool TilePlacementIsValid(GameObject tile, int x, int y)
+    public bool TilePlacementIsValid(GameObject tile, int x, int z)
     {
         TileScript script = tile.GetComponent<TileScript>();
         bool isNotAlone = false;
-        if (placedTiles[x - 1, y] != null)
+        x += 85;
+        z += 85;
+
+        if (placedTiles[x - 1, z] != null)
         {
             isNotAlone = true;
-            if (script.West != placedTiles[x - 1, y].GetComponent<TileScript>().East) return false;
+            if (script.West != placedTiles[x - 1, z].GetComponent<TileScript>().East) return false;
         }
-        if (placedTiles[x + 1, y] != null)
+        if (placedTiles[x + 1, z] != null)
         {
             isNotAlone = true;
-            if (script.East != placedTiles[x + 1, y].GetComponent<TileScript>().West) return false;
+            if (script.East != placedTiles[x + 1, z].GetComponent<TileScript>().West) return false;
         }
-        if (placedTiles[x, y - 1] != null)
+        if (placedTiles[x, z - 1] != null)
         {
             isNotAlone = true;
-            if (script.South != placedTiles[x, y - 1].GetComponent<TileScript>().North) return false;
+            if (script.South != placedTiles[x, z - 1].GetComponent<TileScript>().North) return false;
         }
-        if (placedTiles[x, y + 1] != null)
+        if (placedTiles[x, z + 1] != null)
         {
             isNotAlone = true;
-            if (script.North != placedTiles[x, y + 1].GetComponent<TileScript>().South) return false;
+            if (script.North != placedTiles[x, z + 1].GetComponent<TileScript>().South) return false;
         }
-        if (placedTiles[x, y] != null)
+        if (placedTiles[x, z] != null)
         {
             return false;
         }

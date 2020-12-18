@@ -8,6 +8,8 @@ public class PlacementIndicator : MonoBehaviour
 {
     private ARRaycastManager rayManager;
     private GameObject visual;
+    private Vector3 BasePosition;
+    private Vector3 lastValidPosition;
     List<ARRaycastHit> hits;
 
     // Start is called before the first frame update
@@ -36,13 +38,56 @@ public class PlacementIndicator : MonoBehaviour
         }
     }
 
+    public Vector3 PlaceBase()
+    {
+        transform.position = hits[0].pose.position;
+        BasePosition = hits[0].pose.position;
+        return hits[0].pose.position;
+    }
+
+    public Vector3 GetBasePosition()
+    {
+        return BasePosition;
+    }
+
+    bool TryGetTouchPosition(out Vector2 touchPosition)
+    {
+        if(Input.touchCount > 0)
+        {
+            touchPosition = Input.GetTouch(0).position;
+            return true;
+        }
+
+        touchPosition = default;
+        return false;
+    }
+
+    public float GetXPosition()
+    {
+        if (!TryGetTouchPosition(out Vector2 touchPosition)) return lastValidPosition.x;
+        if (rayManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
+        {
+            return hits[0].pose.position.x;
+        }
+        else return lastValidPosition.x;
+    }
+    public float GetZPosition()
+    {
+        if (!TryGetTouchPosition(out Vector2 touchPosition)) return lastValidPosition.z;
+        if (rayManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
+        {
+            return hits[0].pose.position.z;
+        }
+        else return lastValidPosition.z;
+    }
+
     public Vector3 GetPosition()
     {
         if (hits.Count > 0)
         {
-            return hits[0].pose.position;
+            lastValidPosition =  hits[0].pose.position;
         }
-        else return new Vector3(-1,-1,-1);
+        return lastValidPosition;
     }
     public Quaternion GetRotation()
     {

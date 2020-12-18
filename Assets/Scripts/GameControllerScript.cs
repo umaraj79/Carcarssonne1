@@ -79,7 +79,7 @@ public class GameControllerScript : MonoBehaviour
 
     float fTileAimX = 0;
     float fTileAimZ = 0;
-    float xOffset, zOffset, yOffset;
+    //float xOffset, zOffset, yOffset;
 
     int iTileAimX, iTileAimZ;
 
@@ -125,10 +125,10 @@ public class GameControllerScript : MonoBehaviour
 
     private void PlaceFirstTile()
     {
-        xOffset = placementIndicator.GetPosition().x;
-        zOffset = placementIndicator.GetPosition().z;
-        yOffset = placementIndicator.GetPosition().y * 5;
-
+        //xOffset = placementIndicator.GetPosition().x;
+        //zOffset = placementIndicator.GetPosition().z;
+        //yOffset = placementIndicator.GetPosition().y;
+        placedTiles.BasePosition = placementIndicator.PlaceBase();
         PlaceTile(currentTile, 85, 85, true);
         //getInvalidTileImage();
         state = GameStates.NewTurn;
@@ -139,8 +139,8 @@ public class GameControllerScript : MonoBehaviour
     //Startar nytt spel
     public void NewGame()
     {
-        xOffset = 0;
-        zOffset = 0;
+        //xOffset = 0;
+        //zOffset = 0;
         int players = PlayerPrefs.GetInt("PlayerCount");
         placedTiles = GetComponent<PlacedTilesScript>();
         Platform = (PlatformStates)Enum.Parse(typeof(PlatformStates), PlayerPrefs.GetString("Platform"));
@@ -189,25 +189,25 @@ public class GameControllerScript : MonoBehaviour
         borderscript.ChangeCurrentPlayer(playerScript.GetPlayer(currentPlayer).GetPlayerColor());
     }
 
-/*
-    private void getInvalidTileImage()
-    {
-        GameObject image = GameObject.FindGameObjectWithTag("InvalidTile");
-        if (image != null)
+    /*
+        private void getInvalidTileImage()
         {
-            invalidTile = image.GetComponent<Image>();
+            GameObject image = GameObject.FindGameObjectWithTag("InvalidTile");
+            if (image != null)
+            {
+                invalidTile = image.GetComponent<Image>();
+            }
         }
-    }
 
-    public void getInvalidMeeple()
-    {
-        GameObject image = GameObject.FindGameObjectWithTag("InvalidMeeple");
-        if (image != null)
+        public void getInvalidMeeple()
         {
-            invalideMeeple = image.GetComponent<Image>();
+            GameObject image = GameObject.FindGameObjectWithTag("InvalidMeeple");
+            if (image != null)
+            {
+                invalideMeeple = image.GetComponent<Image>();
+            }
         }
-    }
-*/
+    */
 
     private MeepleScript FindMeeple(int x, int y, TileScript.geography geography)
     {
@@ -294,7 +294,7 @@ public class GameControllerScript : MonoBehaviour
         {
             if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().East == TileScript.geography.City)
             {
-                if (placedTiles.getPlacedTiles(x+1, y) != null)
+                if (placedTiles.getPlacedTiles(x + 1, y) != null)
                 {
                     if (!visited[x + 1, y])
                     {
@@ -311,7 +311,7 @@ public class GameControllerScript : MonoBehaviour
         {
             if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().South == TileScript.geography.City)
             {
-                if (placedTiles.getPlacedTiles(x, y-1) != null)
+                if (placedTiles.getPlacedTiles(x, y - 1) != null)
                 {
                     if (!visited[x, y - 1])
                     {
@@ -328,7 +328,7 @@ public class GameControllerScript : MonoBehaviour
         {
             if (placedTiles.getPlacedTiles(x, y).GetComponent<TileScript>().West == TileScript.geography.City)
             {
-                if (placedTiles.getPlacedTiles(x-1, y) != null)
+                if (placedTiles.getPlacedTiles(x - 1, y) != null)
                 {
                     if (!visited[x - 1, y])
                     {
@@ -378,7 +378,7 @@ public class GameControllerScript : MonoBehaviour
 
     }
 
- 
+
 
     public void RecursiveCityIsFinished(int x, int y)
     {
@@ -388,7 +388,7 @@ public class GameControllerScript : MonoBehaviour
         {
             if (!placedTiles.CityTileHasGrassOrStreamCenter(x, y))
             {
-                if (placedTiles.getPlacedTiles(x, y +1) != null)
+                if (placedTiles.getPlacedTiles(x, y + 1) != null)
                 {
                     if (!visited[x, y + 1])
                     {
@@ -405,7 +405,7 @@ public class GameControllerScript : MonoBehaviour
         {
             if (!placedTiles.CityTileHasGrassOrStreamCenter(x, y))
             {
-                if (placedTiles.getPlacedTiles(x+1, y) != null)
+                if (placedTiles.getPlacedTiles(x + 1, y) != null)
                 {
                     if (!visited[x + 1, y])
                     {
@@ -422,7 +422,7 @@ public class GameControllerScript : MonoBehaviour
         {
             if (!placedTiles.CityTileHasGrassOrStreamCenter(x, y))
             {
-                if (placedTiles.getPlacedTiles(x, y-1) != null)
+                if (placedTiles.getPlacedTiles(x, y - 1) != null)
                 {
                     if (!visited[x, y - 1])
                     {
@@ -439,7 +439,7 @@ public class GameControllerScript : MonoBehaviour
         {
             if (!placedTiles.CityTileHasGrassOrStreamCenter(x, y))
             {
-                if (placedTiles.getPlacedTiles(x+1, y) != null)
+                if (placedTiles.getPlacedTiles(x + 1, y) != null)
                 {
                     if (!visited[x - 1, y])
                     {
@@ -459,7 +459,7 @@ public class GameControllerScript : MonoBehaviour
     /// <summary>
     /// AimTile doesn't do anything but visualize where in the tile grid the player is pointing.
     /// </summary>
-    void RenderTempTile()
+    void RenderTempTile(bool renderInPlace)
     {
         bool showMesh = true;
         if (state == GameStates.TileHeld)
@@ -473,6 +473,7 @@ public class GameControllerScript : MonoBehaviour
                 }
                 else
                 {
+                    //showMesh = false;
                     showMesh = false;
                 }
             }
@@ -484,21 +485,49 @@ public class GameControllerScript : MonoBehaviour
             if (showMesh)
             {
                 Mesh mesh = tileMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
-                Graphics.DrawMesh(mesh, new Vector3((iTileAimX - 85), 0.0f + yOffset, (iTileAimZ - 85)), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
+                if(renderInPlace)Graphics.DrawMesh(mesh, new Vector3(fTileAimX, placedTiles.BasePosition.y, fTileAimZ), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
+                else Graphics.DrawMesh(mesh, new Vector3(placedTiles.BasePosition.x + ((float)(iTileAimX/5)), placedTiles.BasePosition.y, placedTiles.BasePosition.z + ((float)(iTileAimZ/5))), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
             }
         }
     }
 
-    private void MouseAim()
+    private void MouseAim2()
     {
-        float planeY = 0;
-        Plane plane = new Plane(Vector3.up, Vector3.up * planeY);
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (plane.Raycast(ray, out float distance))
+        //float planeY = 0;
+        //Plane plane = new Plane(Vector3.up, Vector3.up * planeY);
+        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (CursorInside())
         {
-            fTileAimX = ray.GetPoint(distance).x;
-            fTileAimZ = ray.GetPoint(distance).z;
+            fTileAimX = placementIndicator.GetXPosition();
+            fTileAimZ = placementIndicator.GetZPosition();
+
+            if (fTileAimX - placedTiles.BasePosition.x > 0)
+            {
+                iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) + 1f) / 2);
+            }
+            else
+            {
+                iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) - 1f) / 2);
+            }
+            if (fTileAimZ - placedTiles.BasePosition.z > 0)
+            {
+                iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) + 1f) / 2);
+            }
+            else
+            {
+                iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) - 1f) / 2);
+            }
         }
+        //TileAimX = xs + 85;
+        //TileAimZ = zs + 85;
+    }
+    private void MouseAim1()
+    {
+        //float planeY = 0;
+        //Plane plane = new Plane(Vector3.up, Vector3.up * planeY);
+        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        fTileAimX = placementIndicator.GetXPosition();
+        fTileAimZ = placementIndicator.GetZPosition();
 
         if (fTileAimX > 0)
         {
@@ -631,9 +660,9 @@ public class GameControllerScript : MonoBehaviour
             //Debug.Log("TestIfMeepleCantBePlaced = " + res);
         }
 
-        if(meepleGeography == TileScript.geography.City)
+        if (meepleGeography == TileScript.geography.City)
         {
-            if(currentCenter == TileScript.geography.City)
+            if (currentCenter == TileScript.geography.City)
             {
                 res = CityIsFinished(xs + 85, zs + 85) || res;
                 //Debug.Log("CityIsFinisehd OR res = " + res);
@@ -663,19 +692,20 @@ public class GameControllerScript : MonoBehaviour
     {
         tempX = x;
         tempY = y;
-        Debug.Log(tile == null);
-        Debug.Log(GetComponent<PointScript>().enabled);
         tile.GetComponent<TileScript>().vIndex = VertexItterator;
-        GetComponent<PointScript>().placeVertex(VertexItterator, placedTiles.GetNeighbors(tempX, tempY), placedTiles.getWeights(tempX, tempY), currentTile.GetComponent<TileScript>().getCenter(), placedTiles.getCenters(tempX, tempY), placedTiles.getDirections(tempX, tempY));
+
+        //GetComponent<PointScript>().placeVertex(VertexItterator, placedTiles.GetNeighbors(tempX, tempY), placedTiles.getWeights(tempX, tempY), currentTile.GetComponent<TileScript>().getCenter(), placedTiles.getCenters(tempX, tempY), placedTiles.getDirections(tempX, tempY));
+
         VertexItterator++;
-        if (!firstTile) { 
+        if (!firstTile)
+        {
             placedTiles.PlaceTile(x, y, tile);
         }
         else
         {
-            placedTiles.PlaceTile(x - (int)xOffset, y - (int)zOffset, tile);
+            placedTiles.PlaceTile(x, y, tile);
         }
-        tile.transform.position = new Vector3(1.0f * (x - 85 + (int)xOffset), 0.0f + (int)yOffset, 1.0f * (y - 85 + (int)zOffset));
+        tile.transform.position = placedTiles.BasePosition;
         tile.GetComponentInChildren<MeshRenderer>().enabled = true;
         //Sätter alla HasMeeple();
         /*
@@ -937,26 +967,33 @@ public class GameControllerScript : MonoBehaviour
         state = GameStates.GameOver;
     }
 
-
-    // Update is called once per frame
-    void Update()
+    private bool CursorInside()
     {
-        if (Input.mousePosition.x > 2149 || Input.mousePosition.x < 315 || Input.mousePosition.y > 1460 || Input.mousePosition.y < 220)
+        if (Input.mousePosition.x > 2350 || Input.mousePosition.x < 250 || Input.mousePosition.y > 1500 || Input.mousePosition.y < 317)
         {
             CursorState = CursorStates.Outside;
+            return false;
         }
         else
         {
             CursorState = CursorStates.Inside;
-            MouseAim();
+            return true;
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (CursorInside())
+        {
+            MouseAim2();
         }
         if (renderCurrentTile)
         {
-            RenderTempTile();
+            RenderTempTile(true);
         }
-        if(state == GameStates.NewGame)
+        if (state == GameStates.NewGame)
         {
-            errorOutput = "11";
             placementIndicator.Render();
         }
         if (Platform == PlatformStates.Tablet)
@@ -971,11 +1008,11 @@ public class GameControllerScript : MonoBehaviour
                 renderCurrentTile = true;
                 if (state == GameStates.NewGame)
                 {
-                    if(placementIndicator.GetPosition().x != -1) PlaceFirstTile();
+                    if (placementIndicator.GetPosition().x != -1) PlaceFirstTile();
                 }
                 if (touch.phase == TouchPhase.Moved)
                 {
-                    RenderTempTile();
+                    RenderTempTile(false);
                 }
                 if (touch.phase == TouchPhase.Ended)
                 {
@@ -1053,7 +1090,7 @@ public class GameControllerScript : MonoBehaviour
                 GetComponent<PointScript>().printEverything();
             }
         }
-        ErrorPlane.UpdatePosition(iTileAimX, (int)yOffset, iTileAimZ);
+        ErrorPlane.UpdatePosition(iTileAimX, iTileAimZ);
 
         updateDebug();
         UpdatePlayerFrames();
@@ -1076,13 +1113,13 @@ public class GameControllerScript : MonoBehaviour
         debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText2").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText3").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText4").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText5").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText6").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText7").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText8").GetComponent<Text>().text = state.ToString();
-        debugCluster.transform.Find("DebugText9").GetComponent<Text>().text = placementIndicator.GetPosition().y.ToString();
-        if (placedTiles.getPlacedTiles(85, 85) != null) debugCluster.transform.Find("DebugText10").GetComponent<Text>().text =  placedTiles.getPlacedTiles(85,85).transform.position.y.ToString();
+        debugCluster.transform.Find("DebugText4").GetComponent<Text>().text = Input.mousePosition.x.ToString();
+        debugCluster.transform.Find("DebugText5").GetComponent<Text>().text = Input.mousePosition.y.ToString();
+        debugCluster.transform.Find("DebugText6").GetComponent<Text>().text = state.ToString();
+        debugCluster.transform.Find("DebugText7").GetComponent<Text>().text = CursorInside().ToString();
+        debugCluster.transform.Find("DebugText8").GetComponent<Text>().text = (fTileAimX).ToString();
+        debugCluster.transform.Find("DebugText9").GetComponent<Text>().text = (fTileAimZ).ToString();
+        debugCluster.transform.Find("DebugText10").GetComponent<Text>().text = "Tile placement is valid: " + placedTiles.TilePlacementIsValid(currentTile, iTileAimX,iTileAimZ);
     }
 
     public void toggleDebug()

@@ -473,18 +473,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &879454939 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3139596905044355997, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
-    type: 3}
-  m_PrefabInstance: {fileID: 3641876836137873310}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1028061335 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3641876836192769801, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
@@ -568,8 +556,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1760703bbd54c04488a8d10600262ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_PlanePrefab: {fileID: 0}
-  m_DetectionMode: -1
+  m_PlanePrefab: {fileID: 562744541367453643, guid: 1f48a405d79bb1845b58cd715284d799,
+    type: 3}
+  m_DetectionMode: 1
 --- !u!114 &1453468346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -644,8 +633,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27579ba7119292f49a6c1287706cbd1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  invalidTile: {fileID: 0}
-  invalideMeeple: {fileID: 879454939}
   mainCamera: {fileID: 255812315}
   tileMesh: {fileID: 919132149155446097, guid: 991ba865178de904da8c76d49d48cace, type: 3}
   meepleMesh: {fileID: 919132149155446097, guid: 518ac3f7de54a91449a2d802bc9dc0a7,
@@ -1027,6 +1014,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 740860567644652553, guid: 0134f92267c1f754e81383f4eac3ed85,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 740860567644652553, guid: 0134f92267c1f754e81383f4eac3ed85,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 740860567644652553, guid: 0134f92267c1f754e81383f4eac3ed85,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 7372314387739509918, guid: 0134f92267c1f754e81383f4eac3ed85,
         type: 3}
