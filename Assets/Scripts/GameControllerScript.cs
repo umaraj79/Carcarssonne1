@@ -75,6 +75,8 @@ public class GameControllerScript : MonoBehaviour
 
     string errorOutput = "";
 
+    string stage = "0";
+
     public GameObject debugCluster;
 
     float fTileAimX = 0;
@@ -132,7 +134,6 @@ public class GameControllerScript : MonoBehaviour
         PlaceTile(currentTile, 85, 85, true);
         //getInvalidTileImage();
         state = GameStates.NewTurn;
-        errorOutput = currentTile.GetComponent<TileScript>().id.ToString();
     }
 
 
@@ -459,7 +460,7 @@ public class GameControllerScript : MonoBehaviour
     /// <summary>
     /// AimTile doesn't do anything but visualize where in the tile grid the player is pointing.
     /// </summary>
-    void RenderTempTile(bool renderInPlace)
+    void RenderTempTile()
     {
         bool showMesh = true;
         if (state == GameStates.TileHeld)
@@ -485,8 +486,17 @@ public class GameControllerScript : MonoBehaviour
             if (showMesh)
             {
                 Mesh mesh = tileMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
-                if(renderInPlace)Graphics.DrawMesh(mesh, new Vector3(fTileAimX, placedTiles.BasePosition.y, fTileAimZ), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
-                else Graphics.DrawMesh(mesh, new Vector3(placedTiles.BasePosition.x + ((float)(iTileAimX/5)), placedTiles.BasePosition.y, placedTiles.BasePosition.z + ((float)(iTileAimZ/5))), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
+                //Graphics.DrawMesh(mesh, new Vector3(fTileAimX, placedTiles.BasePosition.y, fTileAimZ), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
+                Quaternion qRotation1 = new Quaternion(currentTile.transform.rotation.x, currentTile.transform.rotation.y, currentTile.transform.rotation.z, currentTile.transform.rotation.w);
+                //qRotation1.y += 180f;
+                Quaternion qRotation2 = qRotation1;
+                Vector3 rot = currentTile.transform.rotation.eulerAngles;
+                rot = new Vector3(rot.x, rot.y + 180, rot.z);
+
+                qRotation1 = Quaternion.Euler(rot);
+
+                Graphics.DrawMesh(mesh, new Vector3(fTileAimX, placedTiles.BasePosition.y, fTileAimZ), qRotation1, currentTile.GetComponentInChildren<Renderer>().material, 0);
+                //else Graphics.DrawMesh(mesh, new Vector3(placedTiles.BasePosition.x + ((float)(iTileAimX / 5)), placedTiles.BasePosition.y, placedTiles.BasePosition.z + ((float)(iTileAimZ / 5))), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
             }
         }
     }
@@ -496,27 +506,24 @@ public class GameControllerScript : MonoBehaviour
         //float planeY = 0;
         //Plane plane = new Plane(Vector3.up, Vector3.up * planeY);
         //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (CursorInside())
-        {
-            fTileAimX = placementIndicator.GetXPosition();
-            fTileAimZ = placementIndicator.GetZPosition();
+        fTileAimX = placementIndicator.GetXPosition();
+        fTileAimZ = placementIndicator.GetZPosition();
 
-            if (fTileAimX - placedTiles.BasePosition.x > 0)
-            {
-                iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) + 1f) / 2);
-            }
-            else
-            {
-                iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) - 1f) / 2);
-            }
-            if (fTileAimZ - placedTiles.BasePosition.z > 0)
-            {
-                iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) + 1f) / 2);
-            }
-            else
-            {
-                iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) - 1f) / 2);
-            }
+        if (fTileAimX - placedTiles.BasePosition.x > 0)
+        {
+            iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) + 1f) / 2);
+        }
+        else
+        {
+            iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) - 1f) / 2);
+        }
+        if (fTileAimZ - placedTiles.BasePosition.z > 0)
+        {
+            iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) + 1f) / 2);
+        }
+        else
+        {
+            iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) - 1f) / 2);
         }
         //TileAimX = xs + 85;
         //TileAimZ = zs + 85;
@@ -549,99 +556,11 @@ public class GameControllerScript : MonoBehaviour
         //TileAimZ = zs + 85;
     }
 
-    public void AimMeeple(bool TouchEnded)
-    {
 
-        aimX = 0;
-        aimZ = 0;
-        try
-        {
-            if (placedTiles.getPlacedTiles(iTileAimX, iTileAimZ) == currentTile)
-            {
-                GameObject tile = placedTiles.getPlacedTiles(iTileAimX, iTileAimZ);
-                TileScript tileScript = tile.GetComponent<TileScript>();
-
-                //aimX = TileAimX - (xs * 2);
-                //aimZ = TileAimZ - (zs * 2);
-                aimX = (fTileAimX - ((iTileAimX - 85)));
-                aimZ = (fTileAimZ - ((iTileAimZ - 85)));
-
-                //Debug.Log("x: " + aimX + " z: " + aimZ);
-                int id = tile.GetComponent<TileScript>().id;
-
-                meepleGeography = TileScript.geography.Grass;
-                direction = PointScript.Direction.CENTER;
-
-                if (aimX > .25f && aimZ < .25f && aimZ > -.25f)
-                {
-                    direction = PointScript.Direction.EAST;
-                    meepleGeography = tileScript.East;
-                }
-                else if (aimX < -.25f && aimZ < .25f && aimZ > -.25f)
-                {
-                    direction = PointScript.Direction.WEST;
-                    meepleGeography = tileScript.West;
-                }
-                if (aimZ > .25f && aimX < .25f && aimX > -.25f)
-                {
-                    direction = PointScript.Direction.NORTH;
-                    meepleGeography = tileScript.North;
-                }
-                else if (aimZ < -.25f && aimX < .25f && aimX > -.25f)
-                {
-                    direction = PointScript.Direction.SOUTH;
-                    meepleGeography = tileScript.South;
-                }
-                if (aimZ < .25f && aimZ > -.25f && aimX < .25f && aimX > -.25f)
-                {
-                    direction = PointScript.Direction.CENTER;
-                    meepleGeography = tileScript.getCenter();
-                }
-
-                if (meepleGeography == TileScript.geography.City || meepleGeography == TileScript.geography.Cloister || meepleGeography == TileScript.geography.Road)
-                {
-                    if (state == GameStates.MeepleHeld)
-                    {
-                        //float tmpX = xs * 2 + aimX;
-                        //float tmpZ = zs * 2 + aimZ;
-                        //Debug.Log("X: " + (tmpX) + " z: " + (tmpZ));
-                        //Material mat = meeples[0][0].GetComponent<MeepleScript>().materials[currentPlayer];
-
-
-
-                        Mesh mesh = meepleMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
-                        Material mat = playerScript.GetPlayer(currentPlayer).meeples[0].GetComponent<MeepleScript>().material;
-                        Graphics.DrawMesh(mesh, new Vector3(fTileAimX, 0.175f, fTileAimZ), Quaternion.Euler(0.0f, 180.0f + 0.0f, 0.0f), mat, 0);
-
-                        if (TouchEnded && CursorState == CursorStates.Inside)
-                        {
-                            GameObject newMeeple = null;
-                            foreach (GameObject meeple in playerScript.GetPlayer(currentPlayer).meeples)
-                            {
-                                if (meeple.GetComponent<MeepleScript>().free)
-                                {
-                                    newMeeple = meeple;
-                                    break;
-                                }
-                            }
-                            if (newMeeple != null)
-                            {
-                                PlaceMeeple(newMeeple, iTileAimX - 85, iTileAimZ - 85, direction, meepleGeography);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (IndexOutOfRangeException e)
-        {
-            Debug.Log(e);
-            errorOutput = e.ToString();
-        }
-    }
 
     public void PlaceMeeple(GameObject meeple, int xs, int zs, PointScript.Direction direction, TileScript.geography meepleGeography)
     {
+        stage = "3";
         TileScript currentTileScript = currentTile.GetComponent<TileScript>();
         TileScript.geography currentCenter = currentTileScript.getCenter();
         bool res;
@@ -659,53 +578,59 @@ public class GameControllerScript : MonoBehaviour
             res = GetComponent<PointScript>().testIfMeepleCantBePlaced(currentTileScript.vIndex, meepleGeography);
             //Debug.Log("TestIfMeepleCantBePlaced = " + res);
         }
+        stage = "4";
 
         if (meepleGeography == TileScript.geography.City)
         {
             if (currentCenter == TileScript.geography.City)
             {
-                res = CityIsFinished(xs + 85, zs + 85) || res;
+                res = CityIsFinished(xs, zs) || res;
                 //Debug.Log("CityIsFinisehd OR res = " + res);
             }
             else
             {
-                res = CityIsFinishedDirection(xs + 85, zs + 85, direction) || res;
+                res = CityIsFinishedDirection(xs, zs, direction) || res;
                 //Debug.Log("CityIsFinishedDirection OR res = " + res);
             }
         }
         if (!currentTileScript.checkIfOcupied(direction) && !res)
         {
+            stage = "5";
             TileScript.geography geography = currentTileScript.getGeographyAt(direction);
             currentTileScript.occupy(direction);
             if (meepleGeography == TileScript.geography.Cityroad) meepleGeography = TileScript.geography.City;
-            meeple.GetComponent<MeepleScript>().assignAttributes(xs + 85, zs + 85, direction, meepleGeography);
+            meeple.GetComponent<MeepleScript>().assignAttributes(xs, zs, direction, meepleGeography);
             meeple.GetComponentInChildren<MeshRenderer>().enabled = true;
-            meeple.transform.position = new Vector3(fTileAimX, 0.175f, fTileAimZ);
+            meeple.transform.position = new Vector3(fTileAimX, placedTiles.BasePosition.y, fTileAimZ);
             meeple.name = "MeepleDown";
             meeple.GetComponent<MeepleScript>().free = false;
             state = GameStates.MeepleDown;
         }
+        stage = "6";
     }
 
     //Metod för att placera en tile på brädan
-    public void PlaceTile(GameObject tile, int x, int y, bool firstTile)
+    public void PlaceTile(GameObject tile, int x, int z, bool firstTile)
     {
         tempX = x;
-        tempY = y;
+        tempY = z;
         tile.GetComponent<TileScript>().vIndex = VertexItterator;
 
-        //GetComponent<PointScript>().placeVertex(VertexItterator, placedTiles.GetNeighbors(tempX, tempY), placedTiles.getWeights(tempX, tempY), currentTile.GetComponent<TileScript>().getCenter(), placedTiles.getCenters(tempX, tempY), placedTiles.getDirections(tempX, tempY));
+        GetComponent<PointScript>().placeVertex(VertexItterator, placedTiles.GetNeighbors(tempX, tempY), placedTiles.getWeights(tempX, tempY), currentTile.GetComponent<TileScript>().getCenter(), placedTiles.getCenters(tempX, tempY), placedTiles.getDirections(tempX, tempY));
 
         VertexItterator++;
         if (!firstTile)
         {
-            placedTiles.PlaceTile(x, y, tile);
+            placedTiles.PlaceTile(x, z, tile);
         }
         else
         {
-            placedTiles.PlaceTile(x, y, tile);
+            placedTiles.PlaceTile(x, z, tile);
         }
-        tile.transform.position = placedTiles.BasePosition;
+        tile.transform.position = new Vector3(placedTiles.BasePosition.x + ((tempX-85) * 0.2f), placedTiles.BasePosition.y, placedTiles.BasePosition.z + ((tempY-85) * 0.2f));
+
+        //tile.transform.rotation = placementIndicator.GetRotation();
+
         tile.GetComponentInChildren<MeshRenderer>().enabled = true;
         //Sätter alla HasMeeple();
         /*
@@ -762,7 +687,7 @@ public class GameControllerScript : MonoBehaviour
             if (placedTiles.TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
                 ErrorPlane.flashConfirm();
-                PlaceTile(currentTile, iTileAimX, iTileAimZ, false);
+                PlaceTile(currentTile, 85 + iTileAimX, 85 + iTileAimZ, false);
                 //invalidTile.GetComponent<CardSlideScript>().InvalidTile(false);
                 renderCurrentTile = false;
             }
@@ -988,9 +913,10 @@ public class GameControllerScript : MonoBehaviour
         {
             MouseAim2();
         }
+
         if (renderCurrentTile)
         {
-            RenderTempTile(true);
+            RenderTempTile();
         }
         if (state == GameStates.NewGame)
         {
@@ -1001,8 +927,6 @@ public class GameControllerScript : MonoBehaviour
             int touches = Input.touchCount;
             Touch touch = Input.GetTouch(0);
 
-
-
             if (touches > 0 && touches < 2 && CursorState == CursorStates.Inside)
             {
                 renderCurrentTile = true;
@@ -1012,40 +936,62 @@ public class GameControllerScript : MonoBehaviour
                 }
                 if (touch.phase == TouchPhase.Moved)
                 {
-                    RenderTempTile(false);
+                    //RenderTempTile();
                 }
-                if (touch.phase == TouchPhase.Ended)
+                if (state == GameStates.TileHeld)
                 {
-                    bool hasNoNeighbours = true;
-                    int[] neighbours = placedTiles.GetNeighbors(iTileAimX, iTileAimZ);
-                    for (int i = 0; i < neighbours.Length; i++)
+                    if (touch.phase == TouchPhase.Ended)
                     {
-                        if (neighbours[i] != 0)
+                        bool hasNoNeighbours = true;
+                        int[] neighbours = placedTiles.GetNeighbors(iTileAimX+85, iTileAimZ+85);
+                        for (int i = 0; i < neighbours.Length; i++)
                         {
-                            hasNoNeighbours = false;
+                            if (neighbours[i] != 0)
+                            {
+                                hasNoNeighbours = false;
+                            }
+                        }
+                        if (hasNoNeighbours)
+                        {
+                            //invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
+                            renderCurrentTile = false;
+                        }
+                        if (!hasNoNeighbours)
+                        {
+                            renderCurrentTile = true;
                         }
                     }
-                    if (hasNoNeighbours)
+                }
+
+                if (state == GameStates.MeepleHeld)
+                {
+                    AimMeeple();
+
+                    if (touch.phase == TouchPhase.Ended)
                     {
-                        //invalidTile.GetComponent<CardSlideScript>().InvalidTile(true);
-                        renderCurrentTile = false;
-                    }
-                    if (!hasNoNeighbours)
-                    {
-                        renderCurrentTile = true;
+                        GameObject newMeeple = null;
+                        foreach (GameObject meeple in playerScript.GetPlayer(currentPlayer).meeples)
+                        {
+                            if (meeple.GetComponent<MeepleScript>().free)
+                            {
+                                newMeeple = meeple;
+                                break;
+                            }
+                        }
+                        if (newMeeple != null)
+                        {
+                            stage = "3";
+                            PlaceMeeple(newMeeple, iTileAimX + 85, iTileAimZ + 85, direction, meepleGeography);
+                        }
                     }
                 }
-            }
-            if (state == GameStates.MeepleHeld)
-            {
-                AimMeeple(touch.phase == TouchPhase.Ended);
             }
         }
         else
         {
             if (state == GameStates.MeepleHeld)
             {
-                AimMeeple(Input.GetMouseButtonDown(0));
+                AimMeeple();
             }
 
             if (CursorState == CursorStates.Inside)
@@ -1090,7 +1036,7 @@ public class GameControllerScript : MonoBehaviour
                 GetComponent<PointScript>().printEverything();
             }
         }
-        ErrorPlane.UpdatePosition(iTileAimX, iTileAimZ);
+        ErrorPlane.UpdatePosition(placedTiles.BasePosition, iTileAimX, iTileAimZ);
 
         updateDebug();
         UpdatePlayerFrames();
@@ -1107,19 +1053,91 @@ public class GameControllerScript : MonoBehaviour
         }
     }
 
+    public void AimMeeple()
+    {
+        try
+        {
+            if (placedTiles.getPlacedTiles(iTileAimX + 85, iTileAimZ + 85) == currentTile)
+            {
+                GameObject tile = placedTiles.getPlacedTiles(iTileAimX + 85, iTileAimZ + 85);
+                TileScript tileScript = tile.GetComponent<TileScript>();
+
+                //aimX = TileAimX - (xs * 2);
+                //aimZ = TileAimZ - (zs * 2);
+                float fiTileAimx = ((float)iTileAimX / 10) * 2;
+                float fiTileAimz = ((float)iTileAimZ / 10) * 2;
+
+                aimX = (((fTileAimX - placedTiles.BasePosition.x) - (fiTileAimx)) * 10);
+                aimZ = (((fTileAimZ - placedTiles.BasePosition.z) - (fiTileAimz)) * 10);
+
+                //Debug.Log("x: " + aimX + " z: " + aimZ);
+                int id = tile.GetComponent<TileScript>().id;
+
+                meepleGeography = TileScript.geography.Grass;
+                direction = PointScript.Direction.CENTER;
+
+                if (aimX > .5f && aimZ < .5f && aimZ > -.5f)
+                {
+                    direction = PointScript.Direction.EAST;
+                    meepleGeography = tileScript.East;
+                }
+                else if (aimX < -.5f && aimZ < .5f && aimZ > -.5f)
+                {
+                    direction = PointScript.Direction.WEST;
+                    meepleGeography = tileScript.West;
+                }
+                if (aimZ > .5f && aimX < .5f && aimX > -.5f)
+                {
+                    direction = PointScript.Direction.NORTH;
+                    meepleGeography = tileScript.North;
+                }
+                else if (aimZ < -.5f && aimX < .5f && aimX > -.5f)
+                {
+                    direction = PointScript.Direction.SOUTH;
+                    meepleGeography = tileScript.South;
+                }
+                if (aimZ < .5f && aimZ > -.5f && aimX < .5f && aimX > -.5f)
+                {
+                    direction = PointScript.Direction.CENTER;
+                    meepleGeography = tileScript.getCenter();
+                }
+
+                if (meepleGeography == TileScript.geography.City || meepleGeography == TileScript.geography.Cloister || meepleGeography == TileScript.geography.Road)
+                {
+                    stage = "1";
+                    //float tmpX = xs * 2 + aimX;
+                    //float tmpZ = zs * 2 + aimZ;
+                    //Debug.Log("X: " + (tmpX) + " z: " + (tmpZ));
+                    //Material mat = meeples[0][0].GetComponent<MeepleScript>().materials[currentPlayer];
+
+                    Mesh mesh = meepleMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
+                    Material mat = playerScript.GetPlayer(currentPlayer).meeples[0].GetComponent<MeepleScript>().material;
+                    Graphics.DrawMesh(mesh, new Vector3(fTileAimX, placedTiles.BasePosition.y, fTileAimZ), Quaternion.Euler(0.0f, 180.0f + 0.0f, 0.0f), mat, 0);
+                    stage = "2";
+
+                }
+            }
+        }
+        catch (IndexOutOfRangeException e)
+        {
+            Debug.Log(e);
+            errorOutput = e.ToString();
+        }
+    }
+
     private void updateDebug()
     {
         TileScript currentTileScript = currentTile.GetComponent<TileScript>();
         debugCluster.transform.Find("DebugText1").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText2").GetComponent<Text>().text = "";
         debugCluster.transform.Find("DebugText3").GetComponent<Text>().text = "";
-        debugCluster.transform.Find("DebugText4").GetComponent<Text>().text = Input.mousePosition.x.ToString();
-        debugCluster.transform.Find("DebugText5").GetComponent<Text>().text = Input.mousePosition.y.ToString();
-        debugCluster.transform.Find("DebugText6").GetComponent<Text>().text = state.ToString();
-        debugCluster.transform.Find("DebugText7").GetComponent<Text>().text = CursorInside().ToString();
-        debugCluster.transform.Find("DebugText8").GetComponent<Text>().text = (fTileAimX).ToString();
-        debugCluster.transform.Find("DebugText9").GetComponent<Text>().text = (fTileAimZ).ToString();
-        debugCluster.transform.Find("DebugText10").GetComponent<Text>().text = "Tile placement is valid: " + placedTiles.TilePlacementIsValid(currentTile, iTileAimX,iTileAimZ);
+        debugCluster.transform.Find("DebugText4").GetComponent<Text>().text = state.ToString();
+        debugCluster.transform.Find("DebugText5").GetComponent<Text>().text = "Cursor inside: " + CursorInside().ToString();
+        debugCluster.transform.Find("DebugText6").GetComponent<Text>().text = "";
+        debugCluster.transform.Find("DebugText7").GetComponent<Text>().text = meepleGeography.ToString() + " : " + direction.ToString();
+        debugCluster.transform.Find("DebugText8").GetComponent<Text>().text = "int: x: " + iTileAimX + " z: " + iTileAimZ;
+        debugCluster.transform.Find("DebugText9").GetComponent<Text>().text = "float: x: " + (fTileAimX - placedTiles.BasePosition.x) + " z: " + (fTileAimZ - placedTiles.BasePosition.z);
+        debugCluster.transform.Find("DebugText10").GetComponent<Text>().text = "aim: x: " + aimX + " z: " + aimZ;
     }
 
     public void toggleDebug()

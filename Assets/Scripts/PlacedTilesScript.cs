@@ -6,6 +6,7 @@ public class PlacedTilesScript : MonoBehaviour
 {
     public Vector3 BasePosition;
 
+
     private GameObject[,] placedTiles;
 
     void Start()
@@ -25,6 +26,8 @@ public class PlacedTilesScript : MonoBehaviour
 
     public GameObject getPlacedTiles(int x, int z)
     {
+        x += 85;
+        z += 85;
         return placedTiles[x, z];
     }
 
@@ -183,6 +186,8 @@ public class PlacedTilesScript : MonoBehaviour
     }
     public int CheckSurroundedCloister(int x, int z, bool endTurn)
     {
+        x += 85;
+        z += 85;
         int pts = 1;
         if (placedTiles[x - 1, z - 1] != null) pts++;
         if (placedTiles[x - 1, z] != null) pts++;
@@ -203,6 +208,8 @@ public class PlacedTilesScript : MonoBehaviour
     }
     public bool CheckNeighborsIfTileCanBePlaced(GameObject tile, int x, int y)
     {
+        x += 85;
+        y += 85;
         TileScript script = tile.GetComponent<TileScript>();
         bool isNotAlone2 = false;
 

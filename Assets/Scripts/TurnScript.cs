@@ -10,8 +10,7 @@ public class TurnScript : MonoBehaviour
     int iterator = 0;
     void Start()
     {
-        // nbrOfplayers = PlayerPrefs.GetInt("PlayerCount");
-        nbrOfplayers = 3;
+        nbrOfplayers = PlayerPrefs.GetInt("PlayerCount");
         turns = nbrOfplayers;
     }
 

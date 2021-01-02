@@ -9,6 +9,7 @@ public class PlacementIndicator : MonoBehaviour
     private ARRaycastManager rayManager;
     private GameObject visual;
     private Vector3 BasePosition;
+    public Quaternion BaseRotation;
     private Vector3 lastValidPosition;
     List<ARRaycastHit> hits;
 
@@ -30,12 +31,18 @@ public class PlacementIndicator : MonoBehaviour
         {
             transform.position = hits[0].pose.position;
             transform.rotation = hits[0].pose.rotation;
+            BaseRotation = transform.rotation;
 
             if (!visual.activeInHierarchy)
             {
                 visual.SetActive(true);
             }
         }
+    }
+
+    public Quaternion GetRotation()
+    {
+        return BaseRotation;
     }
 
     public Vector3 PlaceBase()
@@ -67,18 +74,18 @@ public class PlacementIndicator : MonoBehaviour
         if (!TryGetTouchPosition(out Vector2 touchPosition)) return lastValidPosition.x;
         if (rayManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
         {
-            return hits[0].pose.position.x;
+            lastValidPosition.x = hits[0].pose.position.x;
         }
-        else return lastValidPosition.x;
+        return lastValidPosition.x;
     }
     public float GetZPosition()
     {
         if (!TryGetTouchPosition(out Vector2 touchPosition)) return lastValidPosition.z;
         if (rayManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
         {
-            return hits[0].pose.position.z;
+            lastValidPosition.z = hits[0].pose.position.z;
         }
-        else return lastValidPosition.z;
+        return lastValidPosition.z;
     }
 
     public Vector3 GetPosition()
@@ -88,14 +95,6 @@ public class PlacementIndicator : MonoBehaviour
             lastValidPosition =  hits[0].pose.position;
         }
         return lastValidPosition;
-    }
-    public Quaternion GetRotation()
-    {
-        if (hits.Count > 0)
-        {
-            return hits[0].pose.rotation;
-        }
-        else return new Quaternion();
     }
 
 }
