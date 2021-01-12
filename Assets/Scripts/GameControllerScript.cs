@@ -456,7 +456,7 @@ public class GameControllerScript : MonoBehaviour
 
 
     /// <summary>
-    /// AimTile doesn't do anything but visualize where in the tile grid the player is pointing.
+    /// RenderTempTile doesn't do anything but visualize where in the tile grid the player is pointing.
     /// </summary>
     void RenderTempTile()
     {
@@ -484,9 +484,7 @@ public class GameControllerScript : MonoBehaviour
             if (showMesh)
             {
                 Mesh mesh = tileMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
-                //Graphics.DrawMesh(mesh, new Vector3(fTileAimX, placedTiles.BasePosition.y, fTileAimZ), Quaternion.Euler(0.0f, 180.0f + (90.0f * NewTileRotation), 0.0f), currentTile.GetComponentInChildren<Renderer>().material, 0);
                 Quaternion qRotation1 = new Quaternion(currentTile.transform.rotation.x, currentTile.transform.rotation.y, currentTile.transform.rotation.z, currentTile.transform.rotation.w);
-                //qRotation1.y += 180f;
                 Quaternion qRotation2 = qRotation1;
                 Vector3 rot = currentTile.transform.rotation.eulerAngles;
                 rot = new Vector3(rot.x, rot.y + 180, rot.z);
@@ -644,7 +642,7 @@ public class GameControllerScript : MonoBehaviour
     }
 
     //Metod för att plocka upp en ny tile
-    public void PickupBrick()
+    public void PickupTile()
     {
         currentTile = stackScript.Pop();
         ResetTileRotation();
@@ -653,7 +651,7 @@ public class GameControllerScript : MonoBehaviour
         {
             Debug.Log("Tile not possible to place: discarding and drawing a new one. " + "Tile id: " + currentTile.GetComponent<TileScript>().id);
             currentTile = null;
-            PickupBrick();
+            PickupTile();
         }
         else
         {
@@ -669,7 +667,7 @@ public class GameControllerScript : MonoBehaviour
         {
             if (state == GameStates.NewTurn)
             {
-                PickupBrick();
+                PickupTile();
             }
         }
     }
@@ -1005,7 +1003,7 @@ public class GameControllerScript : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                PickupBrick();
+                PickupTile();
             }
 
             //If the player presses the R button they rotate the temporary "display" tile AND the currently held tile.
