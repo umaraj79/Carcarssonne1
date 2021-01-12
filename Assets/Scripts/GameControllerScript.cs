@@ -75,8 +75,6 @@ public class GameControllerScript : MonoBehaviour
 
     string errorOutput = "";
 
-    string stage = "0";
-
     public GameObject debugCluster;
 
     float fTileAimX = 0;
@@ -511,19 +509,19 @@ public class GameControllerScript : MonoBehaviour
 
         if (fTileAimX - placedTiles.BasePosition.x > 0)
         {
-            iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) + 1f) / 2);
+            iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) + 1f) / 2) + 85;
         }
         else
         {
-            iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) - 1f) / 2);
+            iTileAimX = ((int)(((fTileAimX - placedTiles.BasePosition.x) * 10) - 1f) / 2) + 85;
         }
         if (fTileAimZ - placedTiles.BasePosition.z > 0)
         {
-            iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) + 1f) / 2);
+            iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) + 1f) / 2) + 85;
         }
         else
         {
-            iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) - 1f) / 2);
+            iTileAimZ = ((int)(((fTileAimZ - placedTiles.BasePosition.z) * 10) - 1f) / 2) + 85;
         }
         //TileAimX = xs + 85;
         //TileAimZ = zs + 85;
@@ -560,7 +558,6 @@ public class GameControllerScript : MonoBehaviour
 
     public void PlaceMeeple(GameObject meeple, int xs, int zs, PointScript.Direction direction, TileScript.geography meepleGeography)
     {
-        stage = "3";
         TileScript currentTileScript = currentTile.GetComponent<TileScript>();
         TileScript.geography currentCenter = currentTileScript.getCenter();
         bool res;
@@ -578,7 +575,6 @@ public class GameControllerScript : MonoBehaviour
             res = GetComponent<PointScript>().testIfMeepleCantBePlaced(currentTileScript.vIndex, meepleGeography);
             //Debug.Log("TestIfMeepleCantBePlaced = " + res);
         }
-        stage = "4";
 
         if (meepleGeography == TileScript.geography.City)
         {
@@ -595,18 +591,16 @@ public class GameControllerScript : MonoBehaviour
         }
         if (!currentTileScript.checkIfOcupied(direction) && !res)
         {
-            stage = "5";
             TileScript.geography geography = currentTileScript.getGeographyAt(direction);
             currentTileScript.occupy(direction);
             if (meepleGeography == TileScript.geography.Cityroad) meepleGeography = TileScript.geography.City;
             meeple.GetComponent<MeepleScript>().assignAttributes(xs, zs, direction, meepleGeography);
             meeple.GetComponentInChildren<MeshRenderer>().enabled = true;
-            meeple.transform.position = new Vector3(fTileAimX, placedTiles.BasePosition.y, fTileAimZ);
+            meeple.transform.position = new Vector3(fTileAimX, placedTiles.BasePosition.y +0.05f, fTileAimZ);
             meeple.name = "MeepleDown";
             meeple.GetComponent<MeepleScript>().free = false;
             state = GameStates.MeepleDown;
         }
-        stage = "6";
     }
 
     //Metod för att placera en tile på brädan
@@ -687,7 +681,7 @@ public class GameControllerScript : MonoBehaviour
             if (placedTiles.TilePlacementIsValid(currentTile, iTileAimX, iTileAimZ))
             {
                 ErrorPlane.flashConfirm();
-                PlaceTile(currentTile, 85 + iTileAimX, 85 + iTileAimZ, false);
+                PlaceTile(currentTile, iTileAimX, iTileAimZ, false);
                 //invalidTile.GetComponent<CardSlideScript>().InvalidTile(false);
                 renderCurrentTile = false;
             }
@@ -943,7 +937,7 @@ public class GameControllerScript : MonoBehaviour
                     if (touch.phase == TouchPhase.Ended)
                     {
                         bool hasNoNeighbours = true;
-                        int[] neighbours = placedTiles.GetNeighbors(iTileAimX+85, iTileAimZ+85);
+                        int[] neighbours = placedTiles.GetNeighbors(iTileAimX, iTileAimZ);
                         for (int i = 0; i < neighbours.Length; i++)
                         {
                             if (neighbours[i] != 0)
@@ -980,8 +974,7 @@ public class GameControllerScript : MonoBehaviour
                         }
                         if (newMeeple != null)
                         {
-                            stage = "3";
-                            PlaceMeeple(newMeeple, iTileAimX + 85, iTileAimZ + 85, direction, meepleGeography);
+                            PlaceMeeple(newMeeple, iTileAimX, iTileAimZ, direction, meepleGeography);
                         }
                     }
                 }
@@ -1036,7 +1029,7 @@ public class GameControllerScript : MonoBehaviour
                 GetComponent<PointScript>().printEverything();
             }
         }
-        ErrorPlane.UpdatePosition(placedTiles.BasePosition, iTileAimX, iTileAimZ);
+        ErrorPlane.UpdatePosition(placedTiles.BasePosition, iTileAimX-85, iTileAimZ-85);
 
         updateDebug();
         UpdatePlayerFrames();
@@ -1057,15 +1050,15 @@ public class GameControllerScript : MonoBehaviour
     {
         try
         {
-            if (placedTiles.getPlacedTiles(iTileAimX + 85, iTileAimZ + 85) == currentTile)
+            if (placedTiles.getPlacedTiles(iTileAimX, iTileAimZ) == currentTile)
             {
-                GameObject tile = placedTiles.getPlacedTiles(iTileAimX + 85, iTileAimZ + 85);
+                GameObject tile = placedTiles.getPlacedTiles(iTileAimX, iTileAimZ);
                 TileScript tileScript = tile.GetComponent<TileScript>();
 
                 //aimX = TileAimX - (xs * 2);
                 //aimZ = TileAimZ - (zs * 2);
-                float fiTileAimx = ((float)iTileAimX / 10) * 2;
-                float fiTileAimz = ((float)iTileAimZ / 10) * 2;
+                float fiTileAimx = ((float)(iTileAimX - 85) / 10) * 2;
+                float fiTileAimz = ((float)(iTileAimZ - 85) / 10) * 2;
 
                 aimX = (((fTileAimX - placedTiles.BasePosition.x) - (fiTileAimx)) * 10);
                 aimZ = (((fTileAimZ - placedTiles.BasePosition.z) - (fiTileAimz)) * 10);
@@ -1104,7 +1097,6 @@ public class GameControllerScript : MonoBehaviour
 
                 if (meepleGeography == TileScript.geography.City || meepleGeography == TileScript.geography.Cloister || meepleGeography == TileScript.geography.Road)
                 {
-                    stage = "1";
                     //float tmpX = xs * 2 + aimX;
                     //float tmpZ = zs * 2 + aimZ;
                     //Debug.Log("X: " + (tmpX) + " z: " + (tmpZ));
@@ -1112,9 +1104,7 @@ public class GameControllerScript : MonoBehaviour
 
                     Mesh mesh = meepleMesh.GetComponentInChildren<MeshFilter>().sharedMesh;
                     Material mat = playerScript.GetPlayer(currentPlayer).meeples[0].GetComponent<MeepleScript>().material;
-                    Graphics.DrawMesh(mesh, new Vector3(fTileAimX, placedTiles.BasePosition.y, fTileAimZ), Quaternion.Euler(0.0f, 180.0f + 0.0f, 0.0f), mat, 0);
-                    stage = "2";
-
+                    Graphics.DrawMesh(mesh, new Vector3(fTileAimX, placedTiles.BasePosition.y+0.05f, fTileAimZ), Quaternion.Euler(0.0f, 180.0f + 0.0f, 0.0f), mat, 0);
                 }
             }
         }

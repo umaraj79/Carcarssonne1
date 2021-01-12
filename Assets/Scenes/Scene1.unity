@@ -210,6 +210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8c449ff7021942f3b2906aa0774006f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BaseRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!4 &152646585
 Transform:
   m_ObjectHideFlags: 0
@@ -698,6 +699,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e778889784c00e843b335c9280d9cdcd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BasePosition: {x: 0, y: 0, z: 0}
 --- !u!114 &1563461491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1272,7 +1274,7 @@ PrefabInstance:
     - target: {fileID: 365437125852118513, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1300547342673683118, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
         type: 3}
@@ -1736,6 +1738,11 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1563461486}
+    - target: {fileID: 4053127904067491147, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5485694566747723320, guid: 6f0d014c5bff5a042a9e63a7b080d67e,
         type: 3}
       propertyPath: m_Text
